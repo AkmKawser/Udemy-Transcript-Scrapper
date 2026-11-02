@@ -8,10 +8,10 @@ Simple, Reliable, Interactive-First Flow:
 3. Lets you manually click on whichever lecture you want to start from (e.g. Lecture 1).
 4. Once you see the lecture on screen, you press ENTER in the terminal.
 5. From that exact lecture onwards, the scraper runs completely hands-free:
-   - Pauses the video.
+   - Pauses the video immediately.
    - Clicks the Transcript button and copies all text.
    - If article/text, copies the reading material.
-   - Saves to data/output/UdemyTranscript.txt (deduplicated).
+   - Saves directly as 'Lecture-1', 'Lecture-2', etc. to data/output/UdemyTranscript.txt (deduplicated).
    - Clicks the purple right-arrow button to automatically advance to the next lecture.
    - Repeats until you reach the end of the course!
 """
@@ -51,15 +51,15 @@ def initialize_output_file(file_path):
     print(f"[*] Cleared existing contents in: {file_path}")
 
 
-def append_to_transcript_file(file_path, title, content):
+def append_to_transcript_file(file_path, header, content):
     """Synchronously appends lecture transcript/text to file."""
     with open(file_path, "a", encoding="utf-8") as f:
         f.write(f"\n\n{'='*70}\n")
-        f.write(f"{title}\n")
+        f.write(f"{header}\n")
         f.write(f"{'='*70}\n\n")
         f.write(content.strip() + "\n")
         f.flush()
-    print(f"[+] SAVED: {title} ({len(content)} chars)")
+    print(f"[+] SAVED: {header} ({len(content)} chars)")
 
 
 def clean_and_dedup_cues(cues_list):
@@ -72,83 +72,6 @@ def clean_and_dedup_cues(cues_list):
             cleaned.append(clean_line)
             prev = clean_line
     return cleaned
-
-
-def get_current_lecture_title(page, lecture_num):
-    """
-    Extracts the true lecture title (e.g., '1. Welcome to Stark Group',
-    '2. What You Will Build', etc.) from the active sidebar item, player header,
-    or top breadcrumbs. Avoids general course title names.
-    """
-    # 1. Inspect the highlighted/active item in the curriculum sidebar
-    sidebar_current_selectors = [
-        'div[class*="curriculum-item-link--is-current"] span[data-purpose="item-title"]',
-        'div[class*="curriculum-item-link--is-current"] span',
-        'div[class*="is-current"] span[data-purpose="item-title"]',
-        'li[class*="is-current"] span[data-purpose="item-title"]',
-        'a[class*="is-current"] span[data-purpose="item-title"]',
-        'div[aria-current="true"] span',
-        'li[aria-current="true"] span'
-    ]
-
-    for sel in sidebar_current_selectors:
-        try:
-            loc = page.locator(sel).first
-            if loc.is_visible(timeout=800):
-                text = loc.inner_text().strip()
-                lines = [l.strip() for l in text.split("\n") if l.strip() and "completed" not in l.lower() and not l.strip().endswith("min")]
-                if lines and len(lines[0]) > 2:
-                    return lines[0]
-        except Exception:
-            pass
-
-    # 2. Inspect the lecture title in the player/page body (below or above player)
-    content_heading_selectors = [
-        'h1[data-purpose="lecture-title"]',
-        'h2[data-purpose="lecture-title"]',
-        'div[data-purpose="lecture-title"]',
-        'h1[class*="lecture-title"]',
-        'h2[class*="lecture-title"]',
-        'span[data-purpose="item-title"]'
-    ]
-
-    for sel in content_heading_selectors:
-        try:
-            loc = page.locator(sel).first
-            if loc.is_visible(timeout=800):
-                text = loc.inner_text().strip()
-                if text and "Course:" not in text and len(text) > 2:
-                    return text
-        except Exception:
-            pass
-
-    # 3. Direct DOM query for the item-title inside whichever link is currently active
-    try:
-        active_title = page.evaluate("""() => {
-            // Find active/current curriculum row
-            const currentItem = document.querySelector('[class*="is-current"], [aria-current="true"], [data-purpose*="current"]');
-            if (currentItem) {
-                const titleEl = currentItem.querySelector('[data-purpose="item-title"]') || currentItem.querySelector('span');
-                if (titleEl && titleEl.innerText) {
-                    return titleEl.innerText.trim();
-                }
-            }
-            return null;
-        }""")
-        if active_title and "completed" not in active_title.lower() and len(active_title) > 2:
-            return active_title
-    except Exception:
-        pass
-
-    # 4. Fallback to document title ONLY if it contains a specific lecture name
-    doc_title = page.title()
-    if "|" in doc_title:
-        candidate = doc_title.split("|")[0].strip()
-        # Ensure it's not the generic course name
-        if candidate and "build a full-stack" not in candidate.lower() and candidate.lower() != "udemy":
-            return candidate
-
-    return f"Lecture {lecture_num}"
 
 
 def extract_current_lecture_content(page):
@@ -255,7 +178,6 @@ def extract_current_lecture_content(page):
 
 def click_purple_right_arrow(page):
     """Clicks the purple right-arrow button on the player edge."""
-    # 1. Exact SVG matching your inspection
     exact_selectors = [
         'svg[aria-label="Go to Next lecture"]',
         'button:has(svg[aria-label="Go to Next lecture"])',
@@ -274,7 +196,6 @@ def click_purple_right_arrow(page):
         except Exception:
             pass
 
-    # 2. JavaScript DOM force click
     try:
         clicked_js = page.evaluate("""() => {
             const svg = document.querySelector('svg[aria-label="Go to Next lecture"]') 
@@ -293,7 +214,6 @@ def click_purple_right_arrow(page):
     except Exception:
         pass
 
-    # 3. Native player hotkey (Shift + N)
     try:
         page.keyboard.press("Shift+N")
         return True
@@ -400,14 +320,11 @@ def run_automation():
 
         while lecture_num <= 300:
             current_url = page.url.split("?")[0]
-            print(f"\n--- [Processing Lecture {lecture_num}] ---")
+            header = f"Lecture-{lecture_num}"
+            print(f"\n--- [Processing {header}] ---")
             print(f"[*] URL: {current_url}")
 
-            # 1. Title
-            title = get_current_lecture_title(page, lecture_num)
-            print(f"[*] Title: {title}")
-
-            # 2. Extract Transcript or Reading content
+            # Extract Transcript or Reading content directly
             content = extract_current_lecture_content(page)
 
             if content:
@@ -416,14 +333,14 @@ def run_automation():
                 if content_hash in seen_content_hashes:
                     print("    [!] DUPLICATE: Content already captured. Skipping re-write.")
                 else:
-                    append_to_transcript_file(output_path, f"Lecture {lecture_num}: {title}", content)
+                    append_to_transcript_file(output_path, header, content)
                     seen_content_hashes.add(content_hash)
             else:
                 print("    [-] Notice: No transcript or text found on this lecture.")
 
             seen_urls.add(current_url)
 
-            # 3. Click the Purple Right-Arrow button
+            # Click the Purple Right-Arrow button
             print("    [*] Clicking purple right-arrow for next lecture...")
             clicked = click_purple_right_arrow(page)
 
