@@ -20,10 +20,16 @@ from email.header import decode_header
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Load environment variables (supports root .env and configuration/.env)
-env_path = Path(__file__).resolve().parent / "configuration" / ".env"
-if env_path.exists():
-    load_dotenv(dotenv_path=env_path)
+# Load environment variables (searches configuration/.env, root .env, or parent directories)
+project_root = Path(__file__).resolve().parent.parent if Path(__file__).resolve().parent.name == "src" else Path(__file__).resolve().parent
+env_candidates = [
+    project_root / "configuration" / ".env",
+    project_root / ".env",
+]
+for candidate in env_candidates:
+    if candidate.exists():
+        load_dotenv(dotenv_path=candidate)
+        break
 else:
     load_dotenv()
 
@@ -34,7 +40,7 @@ COURSE_URL = os.getenv("COURSE_URL", "")
 EMAIL_USER = os.getenv("EMAIL_USER", UDEMY_EMAIL)
 EMAIL_APP_PASSWORD = os.getenv("EMAIL_APP_PASSWORD", "")
 IMAP_SERVER = os.getenv("IMAP_SERVER", "imap.gmail.com")
-OUTPUT_FILE = os.getenv("OUTPUT_FILE", "UdemyTranscript.txt")
+OUTPUT_FILE = os.getenv("OUTPUT_FILE", "data/output/UdemyTranscript.txt")
 HEADLESS = os.getenv("HEADLESS", "false").lower() in ("true", "1", "yes")
 
 
@@ -133,7 +139,13 @@ def run_automation():
         print("[!] Please configure UDEMY_EMAIL and UDEMY_PASSWORD in your .env file.")
         sys.exit(1)
 
-    output_path = Path(OUTPUT_FILE).resolve()
+    raw_output_file = Path(OUTPUT_FILE)
+    if raw_output_file.is_absolute():
+        output_path = raw_output_file
+    else:
+        output_path = (project_root / raw_output_file).resolve()
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     print(f"[*] Output file: {output_path}")
 
     with sync_playwright() as p:
