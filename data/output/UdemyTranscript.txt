@@ -1,0 +1,1842 @@
+
+
+======================================================================
+Lecture 1: Course: Build a Full-Stack Web App with Flutter & Spring Boot
+======================================================================
+
+Welcome to Star Group. Imagine this is your first week here as a junior developer. You are still
+
+getting familiar with the company, the team and the systems people use every day. Star Group
+
+operates different kinds of vehicles, private cars, micro buses, ambulances and delivery vans.
+
+But much of the information about those vehicles is still maintained manually in spreadsheets.
+
+Adding a new vehicle, checking an existing record or correcting information
+
+means going back to those files again and again. It works, but it is hardly convenient.
+
+One morning, the head of administration comes to the IT team with a straightforward request.
+
+We need a simple way to manage our vehicle records. They are not asking for a huge enterprise
+
+platform. They want a small application that solves the immediate need and works properly.
+
+The senior developers are already focused on larger projects, so your team lead turns to you
+
+and says, keep it simple, follow the requirement, use AI and build a working version.
+
+
+======================================================================
+Lecture 2: Course: Build a Full-Stack Web App with Flutter & Spring Boot
+======================================================================
+
+Here is what you will build by the end of this course.
+
+A small, working vehicle management application for Stark Group.
+
+The scope is intentionally focused.
+
+An authorized user will log in, register a new vehicle, view the vehicles already in
+
+the system, update a record when something changes, and delete a vehicle when it is no longer needed.
+
+We are not building a complete enterprise VMS, we are building the essential workflow
+
+and making sure it works properly.
+
+The application follows a very simple business journey.
+
+First, an authorized staff member logs in.
+
+When a new vehicle arrives, they register it in the system.
+
+The vehicle then appears in the vehicle list.
+
+If its information changes, the existing record can be updated instead of creating another one.
+
+And when a vehicle leaves the fleet, it can be safely removed.
+
+We will build each part of this journey together, one step at a time.
+
+Once those features are working, we will not simply assume everything is correct.
+
+You will verify the application at three simple levels.
+
+First, a unit test will check one business rule by itself.
+
+Next, integration testing will confirm that the connected parts of the application work together.
+
+Finally, you will complete the entire user journey from login to deleting a vehicle.
+
+And just like the build itself, these testing steps will be fully guided.
+
+After the application works and the tests pass, you will take it through the final delivery steps.
+
+You will push the project to GitHub, follow a simple CICD workflow, deploy the Flutter
+
+frontend and Java backend, and run one final live check.
+
+Your goal is not just to watch someone build an application.
+
+You will follow the complete guided journey yourself.
+
+From the first requirement to a working application, you can actually demonstrate.
+
+
+======================================================================
+Lecture 3: Course: Build a Full-Stack Web App with Flutter & Spring Boot
+======================================================================
+
+We will repeat the same simple workflow throughout the course.
+
+First, understand the requirement.
+
+Then, give AI one clear and focused instruction.
+
+Review what it creates before moving on.
+
+Run the project and look at the actual result.
+
+Compare that result with the requirement.
+
+If something is wrong, give AI the specific problem and make a focused correction.
+
+Once the result is right, continue to the next small task.
+
+Throughout this course, AI will work as your coding partner.
+
+But AI does not decide what we are building.
+
+The requirement comes first.
+
+Your job is to understand the task.
+
+We will then use AI to help create, modify and troubleshoot the application.
+
+And we will never accept a result simply because AI generated it.
+
+We always check that it matches what we asked for.
+
+Here is a quick example.
+
+Suppose our task is to build a vehicle list using mock data.
+
+We give AI one clear instruction.
+
+AI then creates or updates the necessary flutter files for that task.
+
+We review those changes, run the project and check the result.
+
+Does the page show the required fields?
+
+Are edit and delete available?
+
+Is it still using mock data?
+
+If everything matches the requirement, we move on.
+
+If not, we fix only what is missing.
+
+And we will not ask AI to build everything at once.
+
+We will work in stages.
+
+First, we build the Flutter web interface.
+
+Then we create the Java backend and SQL database.
+
+After that, we connect the two projects, test the application and finally deploy it.
+
+At every stage, the working pattern stays the same.
+
+Understand the task, guide the AI, run the result and verify that it works.
+
+
+======================================================================
+Lecture 4: Course: Build a Full-Stack Web App with Flutter & Spring Boot
+======================================================================
+
+We are now ready to begin the first part of our vehicle management system, the front-end.
+
+This will be a separate Flutter web project.
+
+Its job is to create everything the user sees and interacts with, including the login screen,
+
+vehicle list, forms, and actions.
+
+For now, our focus is only on the user experience.
+
+The Java backend and SQL database will come later.
+
+In this section, we will build the main VMS user journey.
+
+We will create the login experience, vehicle list, register vehicle form, update flow,
+
+and delete action.
+
+At this stage, we will use temporary mock data.
+
+This lets us build and check the complete interface before introducing the backend.
+
+The goal is simple.
+
+First make the front-end clear, consistent, and usable.
+
+We are deliberately building in stages.
+
+For now, Flutter will work with temporary data so we can focus completely on the interface.
+
+Later, we will create the Java backend and SQL database.
+
+Then we will replace the mock data with real information coming through the API.
+
+Before we build the screens, our next step is to prepare Google Antigravity and GitHub Desktop.
+
+Then create and run the Flutter web project.
+
+
+======================================================================
+Lecture 5: 4. Meet the VMS Frontend Project
+======================================================================
+
+[Hands-on] Set Up Google Antigravity & GitHub Desktop
+
+[Hands-on] Setting Up Google Antigravity, GitHub Desktop & the VMS Repositories
+
+Overview: Install the core tools, create two separate GitHub repositories, clone them locally, and establish the folder structure that will keep the Flutter frontend and Spring Boot backend independent from the beginning.
+
+Step 1: Install Google Antigravity
+
+• Open the Google Antigravity download page and install the IDE for your operating system.
+
+• Launch Antigravity and sign in with the Google account you will use for the course.
+
+• Open the IDE once and keep the default settings unless your course environment requires a different configuration.
+
+Step 2: Install GitHub Desktop
+
+• Install GitHub Desktop for your operating system.
+
+• Sign in with the same GitHub account you will use for the VMS repositories.
+
+• Confirm that GitHub Desktop can see your account and local repositories.
+
+Step 3: Create the Two VMS Repositories
+
+• Create a frontend repository named vms-frontend.
+
+• Create a backend repository named vms-backend.
+
+• Keep both repositories separate. Do not place the Spring Boot project inside the Flutter repository or vice versa.
+
+• Initialize each repository with a README so the repositories are immediately visible on GitHub.
+
+Step 4: Clone & Open the Repositories
+
+• Clone vms-frontend using GitHub Desktop and open the folder in Antigravity.
+
+• Clone vms-backend separately and keep it available as the second workspace/project.
+
+• Confirm that GitHub Desktop shows the correct repository before making changes.
+
+Antigravity Prompt
+
+You are my Lead AI Engineer for a small Vehicle Management System (VMS). The system has TWO independent projects: vms-frontend is Flutter Web and vms-backend is Java Spring Boot. Never merge these projects. Keep responsibilities separated and use clean, production-oriented structure. For now, help me prepare the workspace only. Do not generate application features yet.
+
+Verification Checklist
+
+□ Both repositories exist on GitHub.
+
+□ Both repositories are cloned locally.
+
+□ Each repository opens independently in Antigravity.
+
+□ GitHub Desktop shows the correct repository when each project is selected.
+
+
+
+
+6. [Hands-on] Create & Run the Flutter Web Project
+
+
+======================================================================
+Lecture 6: 4. Meet the VMS Frontend Project
+======================================================================
+
+[Hands-on] Create & Run the Flutter Web Project
+
+[Hands-on] Creating & Running the Flutter Web Project
+
+Overview: Create the separate Flutter Web project, run it locally, and establish a clean frontend foundation before any backend integration. The first frontend version uses mock/static data.
+
+Step 1: Create the Flutter Project
+
+• Open the vms-frontend repository in Antigravity.
+
+• Create the Flutter project in the repository root. Use a package/project name such as vms_frontend.
+
+• Enable web support and confirm Chrome or another supported browser is available for local execution.
+
+
+
+
+Step 2: Run the Starter Application
+
+• Run flutter pub get.
+
+• Run the project in Chrome with flutter run -d chrome.
+
+• Confirm that the default Flutter application opens in the browser.
+
+Step 3: Ask Antigravity to Establish the Frontend Foundation
+
+• Open the AI Chat/Agent panel.
+
+• Use the course prompt below.
+
+• Allow terminal commands only when you understand what the agent is executing.
+
+Step 4: Verify the Foundation
+
+• Ask the agent to run flutter analyze.
+
+• Ask it to run flutter build web.
+
+• Open the local web build and confirm that there are no compilation errors.
+
+Antigravity Prompt
+
+@workspace You are my Lead Flutter Engineer. We are building a Vehicle Management System (VMS) as a Flutter Web frontend. This is a separate project from a Java Spring Boot backend. Create a clean, responsive desktop-first admin application foundation using Material 3. For now use mock/static data only; do not create API calls or backend code. Establish a clear structure for screens, reusable widgets, theme, routing/navigation, and models. The planned screens are Login, Vehicle List, Register/Edit Vehicle, and a simple application shell. Keep the implementation clean and easy for a beginner to understand. After making changes, run flutter analyze and fix any issues.
+
+Verification Checklist
+
+□ Flutter Web runs locally.
+
+□ The project builds successfully with flutter build web.
+
+□ The project contains only frontend code.
+
+□ No API/database dependency has been introduced yet.
+
+
+
+
+7. Demo: Run the Flutter VMS Frontend
+
+
+======================================================================
+Lecture 7: Course: Build a Full-Stack Web App with Flutter & Spring Boot
+======================================================================
+
+We have already prepared our tools and created separate repositories for the front-end and back-end.
+
+Now we are going to work only with the VMS front-end project.
+
+Open the front-end repository in Antigravity and confirm that you are working in the correct project.
+
+At this stage, our goal is simple.
+
+Create the Flutter web application and make sure it runs successfully
+
+before we start building the actual VMS interface.
+
+Once the Flutter project is created, the first command we run is flutter pubget.
+
+This prepares the project by downloading the packages it needs.
+
+Watch the terminal and make sure the command completes without errors.
+
+You may see messages about newer package versions being available.
+
+That is fine for now.
+
+What matters is that the dependencies are resolved successfully
+
+and the Flutter project is ready to run.
+
+Next, run the project in Chrome using flutter run –d chrome.
+
+Flutter will build the web application and launch it in the browser.
+
+The first build may take a little longer, so allow it to finish.
+
+In the terminal, check that Flutter starts successfully and does not report a compilation error.
+
+At this point, Antigravity is running our front-end project locally.
+
+When the browser opens, you should see the default Flutter application.
+
+It does not look like our VMS yet, and that is completely fine.
+
+This screen confirms something important.
+
+Our Flutter web environment is working.
+
+We now have a functioning front-end project
+
+that we can gradually turn into the vehicle management system.
+
+Now AI can help us establish the front-end foundation.
+
+Instead of asking Antigravity to build the entire system at once,
+
+we give it a focused requirement.
+
+We want a clean Flutter web structure for our VMS,
+
+including screens, reusable components, navigation, models, and temporary mock data.
+
+But we clearly tell it not to create API calls, back-end code, or database connections yet.
+
+This keeps the front-end independent
+
+and follows the staged development approach we introduced earlier.
+
+Before moving forward, we verify the project,
+
+run Flutter analyze to check for code issues,
+
+and then run Flutter build web to confirm that the application can build successfully for the web.
+
+At this checkpoint, the front-end should run locally.
+
+The project should contain only front-end code
+
+and there should be no API or database dependency.
+
+If any of these checks fail, fix the issue before continuing
+
+so we know we are building on a stable foundation.
+
+Once these checks pass, our technical foundation is ready.
+
+In the next step, we will define the stack group design guideline
+
+before building the complete VMS user interface.
+
+
+======================================================================
+Lecture 8: Course: Build a Full-Stack Web App with Flutter & Spring Boot
+======================================================================
+
+Before we ask AI to build the VMS screens, we need to define how the application should look and behave.
+
+Every screen should feel like part of the same product.
+
+The login page, vehicle list, and forms should use the same colors, typography, spacing, and components.
+
+A clear design guideline helps us keep the interface consistent as we build each feature.
+
+The structure should stay simple.
+
+On desktop, we will use a left-side navigation for the main pages and a clear workspace on the right.
+
+Each page should have its title at the top, with the main action easy to find.
+
+Forms, tables, and content should follow the same alignment and spacing.
+
+This is a business application, so clarity is more important than decoration.
+
+Our visual style should feel clean and professional.
+
+We will use light backgrounds with deep blue and corporate blue as the main application colors.
+
+Green will communicate active or successful states, while red should be reserved for delete actions and errors.
+
+Cards, forms, and tables should use white surfaces, clear text, and subtle borders.
+
+Color should always help the user understand the interface, not simply decorate it.
+
+These design rules will now become part of our instructions to AI.
+
+Instead of simply asking AI to make a screen look good, we will tell it how the navigation should work,
+
+which colors to use, how the content should be arranged, and how components should stay consistent.
+
+This gives us more predictable results.
+
+With the design direction defined, we are ready to build the actual VMS front-end.
+
+
+======================================================================
+Lecture 9: 4. Meet the VMS Frontend Project
+======================================================================
+
+[Hands-on] Build the VMS UI/UX
+
+[Hands-on] Building the VMS UI/UX with Antigravity
+
+Overview: Build the complete first-pass VMS interface before connecting any backend. The goal is to make the user experience work with mock data so students can focus on screens, navigation, forms, and visual consistency.
+
+Step 1: Define the VMS Screen Map
+
+• Create a Login screen.
+
+• Create the main application shell with navigation.
+
+• Create the Vehicle List screen.
+
+• Create the Register/Edit Vehicle form.
+
+• Use mock vehicle records so the list and form can be demonstrated without an API.
+
+Step 2: Generate the First UI Pass
+
+• Open the Flutter project in Antigravity.
+
+• Paste the master prompt below.
+
+• Let the agent complete one coherent pass before moving to smaller micro-prompts.
+
+Step 3: Polish with Micro-Prompts
+
+• Ask the agent to refine the navigation, table/list layout, form spacing, buttons, empty state, loading state, and validation messages one component at a time.
+
+• Keep the visual language consistent with the Stark Group design guideline.
+
+• Do not ask the agent to introduce API calls yet.
+
+Step 4: Agentic Verification
+
+• Run flutter analyze.
+
+• Run flutter build web.
+
+• Launch the web application and manually walk through Login → Vehicle List → Register Vehicle → Edit Vehicle.
+
+• Fix UI or navigation problems before committing.
+
+Antigravity Prompt
+
+@workspace Build the first complete UI/UX for our Vehicle Management System (VMS) in Flutter Web. This is frontend-only at this stage. Do NOT create API clients, HTTP calls, authentication services, or database code.
+
+Create a professional responsive admin interface with:
+- Login screen
+- Application shell with navigation
+- Vehicle List screen
+- Register/Edit Vehicle screen
+- Mock vehicle data
+
+Vehicle fields are: Vehicle Number, Company, Type, Brand, Model, and Status.
+
+Use Material 3, reusable widgets, consistent spacing, accessible labels, clear validation messages, responsive desktop/tablet behavior, and a professional Stark Group visual style. Keep the architecture simple and maintainable. After implementation, run flutter analyze and flutter build web, fix errors, and then stop.
+
+Useful Micro-Prompts
+
+@workspace Review the Vehicle List UI. Make the table/list easy to scan, highlight Vehicle Number and Status, add a clear Edit and Delete action, and provide a polished empty state. Keep the existing design language.
+
+@workspace Review the Register/Edit Vehicle form. Improve field grouping, labels, validation messages, spacing, and primary/secondary actions. Keep it responsive and do not add API calls.
+
+@workspace Review the entire VMS frontend for inconsistent spacing, typography, button styles, and colors. Fix only UI/UX inconsistencies without changing business behavior.
+
+Verification Checklist
+
+□ All four core screens are reachable.
+
+□ Mock data can be displayed, created/edited/deleted locally as designed.
+
+□ No backend/API dependency exists.
+
+□ flutter analyze and flutter build web succeed.
+
+
+
+
+10. Meet the VMS Backend Project
+
+
+======================================================================
+Lecture 10: Course: Build a Full-Stack Web App with Flutter & Spring Boot
+======================================================================
+
+In the previous section, we built the Flutter web front-end
+
+and completed the main VMS user experience.
+
+But right now, our application is still working with temporary data.
+
+It can show the screens, but it does not yet have a real back-end
+
+to process requests or a database to permanently store vehicle information.
+
+That is what we are going to build next.
+
+Our back-end will be a separate Java Spring Boot project.
+
+Flutter remains responsible for the user interface.
+
+Spring Boot will work behind the scenes, handling requests,
+
+applying the application's rules, and communicating with the database.
+
+SQL will provide permanent storage for our vehicle information.
+
+These are separate projects, but later we will connect them
+
+so they work together as one application.
+
+So what does the back-end actually do?
+
+Imagine a user registers a vehicle in Flutter.
+
+The back-end receives that request, checks the required rules,
+
+works with SQL to save the information, and then sends a result back.
+
+The same idea applies when we view, update, or delete vehicles.
+
+The front-end handles the interaction,
+
+while the back-end handles what needs to happen behind it.
+
+Just like the front-end, we will build the back-end in small steps.
+
+First, we create and run the Java Spring Boot project.
+
+Then, we connect the SQL database, build the vehicle logic,
+
+and create the REST APIs that Flutter will use later.
+
+By the end of this section, our back-end will be ready.
+
+In the next section, we will connect it to the Flutter front-end
+
+and replace the temporary data with real data.
+
+
+======================================================================
+Lecture 11: Course: Build a Full-Stack Web App with Flutter & Spring Boot
+======================================================================
+
+So far, our VMS has a working front-end,
+
+but the vehicle data is still temporary.
+
+Now we move behind the screen and build the part
+
+that makes the application real.
+
+Spring Boot will handle requests and business rules,
+
+while SQL will store the information permanently.
+
+We will keep the back-end completely separate
+
+from the Flutter project.
+
+By the end of this demo,
+
+our back-end will be able to receive vehicle data,
+
+validate it, save it, and return it through REST APIs.
+
+We begin with our separate VMS back-end repository.
+
+The project uses Java and Spring Boot,
+
+with the basic dependencies needed for web requests,
+
+database access, and validation.
+
+Open the generated project in Antigravity
+
+and run the Spring Boot application.
+
+At this stage, we are not building vehicle features yet.
+
+We simply want to confirm
+
+that the back-end starts successfully,
+
+listens on its local port,
+
+and remains completely independent
+
+from our Flutter front-end.
+
+Next, we connect Spring Boot to the SQL database.
+
+This is the moment when our back-end gains permanent memory.
+
+Configure the database driver,
+
+the JPA settings, and the connection details.
+
+Sensitive values, such as usernames and passwords,
+
+should stay outside the source code
+
+and must not be committed to GitHub.
+
+Then start Spring Boot again.
+
+If the application starts successfully
+
+with the database configured,
+
+we know the connection is working
+
+and we are ready to store real vehicle information.
+
+Now we can build the actual vehicle back-end.
+
+We define the fields that belong to a vehicle,
+
+including vehicle number, company,
+
+type, brand, model, and status.
+
+Antigravity can help create the entity,
+
+repository, service, validation,
+
+and exception handling structure.
+
+But one business rule is especially important.
+
+Vehicle number must be unique.
+
+If someone tries to create the same vehicle twice,
+
+the service layer should reject it
+
+with a clear error instead of creating duplicate data.
+
+Once the business logic is ready,
+
+we expose it through REST APIs.
+
+These APIs become the communication point
+
+between our future Flutter client and the back-end.
+
+We create endpoints for adding a vehicle,
+
+reading vehicles, updating a record, and deleting it.
+
+The API should return clear responses,
+
+useful validation errors,
+
+and the correct HTTP status codes.
+
+At this stage, we test the APIs independently.
+
+Flutter is still not connected,
+
+and that is intentional.
+
+Before connecting Flutter,
+
+we prove that the back-end can stand on its own.
+
+Create a vehicle through the API
+
+and confirm that the record is stored in SQL.
+
+Fetch the vehicle list
+
+and make sure the saved data comes back correctly.
+
+Then test update and delete.
+
+Finally, try creating the same vehicle number again
+
+and confirm that the back-end rejects it.
+
+If Spring Boot runs,
+
+SQL stores the data,
+
+the CRUD APIs respond correctly,
+
+and the duplicate rule works,
+
+our back-end is ready.
+
+In the next section,
+
+we will replace Flutter's mock data
+
+with this real API data
+
+and connect the two projects together.
+
+
+======================================================================
+Lecture 12: 10. Meet the VMS Backend Project
+======================================================================
+
+[Hands-on] Create & Run the Java Spring Boot Project
+13. [Hands-on] Connect the SQL Database
+
+
+======================================================================
+Lecture 13: 10. Meet the VMS Backend Project
+======================================================================
+
+[Hands-on] Connect the SQL Database
+
+[Hands-on] Connecting the SQL Database to Spring Boot
+
+Overview: Prepare the SQL database and connect it to Spring Boot before implementing the vehicle CRUD APIs. The database schema should be explicit rather than guessed by the AI.
+
+Step 1: Create the Database
+
+• Create the SQL database using the database service selected for the course.
+
+• Record the database name, host, port, username, and password securely.
+
+• Do not commit passwords or private connection strings to GitHub.
+
+Step 2: Configure Spring Boot
+
+• Add the database driver and JPA configuration.
+
+• Use environment variables or a local configuration file that is excluded from Git.
+
+• Configure the application to connect to the SQL database.
+
+Step 3: Verify the Connection
+
+• Start Spring Boot.
+
+• Use a simple health/check endpoint or startup verification to confirm the database connection.
+
+• Do not build the complete vehicle feature yet.
+
+Step 4: Ask AI to Diagnose Connection Errors
+
+• If startup fails, copy the exact error into Antigravity.
+
+• Ask it to explain the cause first, then propose the smallest fix.
+
+• Re-run the application after the fix.
+
+Antigravity Prompt
+
+@workspace Configure this Spring Boot project to connect to our SQL database. Keep credentials out of source control. Use Spring Data JPA and environment-based configuration. Create only the database connectivity foundation at this stage. Add a simple health check if useful. Do not invent vehicle fields or tables yet. After the change, run the build/tests and verify the application starts.
+
+Verification Checklist
+
+□ Spring Boot starts with the database configured.
+
+□ Credentials are not committed to Git.
+
+□ A database connectivity check succeeds.
+
+□ The project still builds cleanly.
+
+
+
+
+
+
+
+14. [Hands-on] Build the Vehicle Backend
+
+
+======================================================================
+Lecture 14: 10. Meet the VMS Backend Project
+======================================================================
+
+[Hands-on] Build the Vehicle Backend
+
+[Hands-on] Building the Vehicle Backend
+
+Overview: Create the Vehicle entity, repository, service layer, validation, and business rule for duplicate Vehicle Numbers. The backend becomes the single source of truth for vehicle data.
+
+Step 1: Define the Vehicle Schema
+
+• Use the exact course fields: Vehicle Number, Company, Type, Brand, Model, and Status.
+
+• Choose appropriate database types and a generated primary key.
+
+• Make Vehicle Number unique at both the business-rule and database level where appropriate.
+
+Step 2: Generate the Backend Layers
+
+• Open the backend project in Antigravity.
+
+• Use the master prompt below to create the entity, repository, DTOs, service, validation, and exception handling.
+
+• Review generated files before moving on.
+
+Step 3: Implement the Duplicate Vehicle Rule
+
+• Attempting to create a Vehicle with an existing Vehicle Number must be rejected.
+
+• Return a clear client-safe error response.
+
+• Keep the rule in the service/business layer rather than only in the controller.
+
+Step 4: Verify with Tests
+
+• Run the backend test suite.
+
+• Confirm the duplicate Vehicle Number scenario is covered.
+
+• Fix compilation or test failures before creating the REST controller.
+
+Antigravity Prompt
+
+@workspace Build the Vehicle domain for our VMS backend. Create a Vehicle entity with: vehicleNumber, company, type, brand, model, and status, plus a generated primary key. Create a repository, request/response DTOs, service layer, validation, and a clear exception for duplicate vehicleNumber. Vehicle Number must be unique. Keep business rules in the service layer and persistence in the repository layer. Do not create Flutter code. Add focused unit tests for the duplicate Vehicle Number rule. Run the tests and fix failures.
+
+Verification Checklist
+
+□ Vehicle entity maps correctly to SQL.
+
+□ Vehicle Number is treated as unique.
+
+□ Service rejects duplicate Vehicle Numbers.
+
+□ Focused unit tests pass.
+
+
+
+
+15. [Hands-on] Create the Vehicle REST APIs
+
+
+======================================================================
+Lecture 15: 10. Meet the VMS Backend Project
+======================================================================
+
+[Hands-on] Create the Vehicle REST APIs
+
+[Hands-on] Creating the Vehicle REST APIs
+
+Overview: Expose the backend business logic through a clean REST API. The API will be ready for the Flutter frontend, but the two projects remain separate until the integration section.
+
+Step 1: Define the API Contract
+
+• Create endpoints for Create, Read, Update, and Delete.
+
+• Use JSON request/response DTOs rather than exposing persistence entities directly.
+
+• Return appropriate HTTP status codes and useful validation errors.
+
+Step 2: Generate the REST Controller
+
+• Use the prompt below in Antigravity.
+
+• Review the endpoint paths and payloads before testing them.
+
+Step 3: Test the APIs Independently
+
+• Use Postman, curl, or another API client.
+
+• Create a vehicle.
+
+• Fetch the vehicle list.
+
+• Update the vehicle.
+
+• Delete the vehicle.
+
+• Attempt a duplicate Vehicle Number and confirm the business rule rejects it.
+
+Step 4: Record the API Contract
+
+• Create a small API documentation file in the backend repository.
+
+• Document endpoint, method, request body, response, and common error cases.
+
+Antigravity Prompt
+
+@workspace Create the VMS Vehicle REST API using the existing service layer. Implement endpoints for create, list/read, update, and delete. Use request/response DTOs, Bean Validation, consistent error responses, and appropriate HTTP status codes. Do not expose JPA entities directly. Preserve the duplicate Vehicle Number business rule. Add controller/integration tests for the CRUD endpoints. After implementation, run the test suite.
+
+Verification Checklist
+
+□ Create, Read, Update, and Delete endpoints work independently.
+
+□ Validation errors are clear.
+
+□ Duplicate Vehicle Number is rejected.
+
+□ The API can be tested without the Flutter frontend.
+
+
+
+
+
+
+
+16. From Mock Data to Real API Data
+
+
+======================================================================
+Lecture 16: Course: Build a Full-Stack Web App with Flutter & Spring Boot
+======================================================================
+
+We have now built the two main parts of our VMS separately.
+
+Our Flutter web frontend is ready with its UI and temporary mock data.
+
+Our Spring Boot backend is also ready with the vehicle logic,
+
+REST APIs and SQL database.
+
+But these two projects are not communicating yet.
+
+In this section, we will connect them step by step
+
+and begin replacing temporary frontend data with real backend data.
+
+Until now, the vehicle list has been displaying mock data
+
+created inside the frontend.
+
+That was useful while we were building and checking the UI.
+
+Now the source of that data will change.
+
+Flutter will request vehicle records from the Spring Boot API,
+
+and those records will come from the SQL database.
+
+The interface stays the same.
+
+What changes is where the information comes from.
+
+Once the projects are connected,
+
+this is how real data will move through the application.
+
+For example, when a user registers a vehicle,
+
+Flutter sends a request to the REST API.
+
+Spring Boot receives it, applies the required business rules
+
+and stores the vehicle in SQL.
+
+The backend then returns a response to Flutter
+
+and the interface can show the updated information.
+
+The same flow will later support the complete vehicle journey.
+
+We will not connect everything at once.
+
+First, we will establish the connection between Flutter web
+
+and the Spring Boot API
+
+and replace the mock vehicle list with real backend data.
+
+Next, we will connect login and authentication.
+
+Then we will connect the complete create, read, update and delete flow.
+
+Finally, we will run an integration checkpoint to confirm
+
+that the frontend, backend and database are working together correctly.
+
+
+======================================================================
+Lecture 17: Course: Build a Full-Stack Web App with Flutter & Spring Boot
+======================================================================
+
+Up to this point, we have built two separate projects.
+
+Flutter gives us the VMS interface,
+
+while Spring Boot and SQL handle the business logic and permanent data.
+
+But the front end is still working with mock information.
+
+Now we connect these two sides.
+
+Flutter will send requests to the Spring Boot REST API.
+
+Spring Boot will process them.
+
+SQL will store the data.
+
+And the result will come back to the interface.
+
+The first change is replacing the mock vehicle repository with the real API.
+
+We keep the existing Flutter screens,
+
+but the data now comes from Spring Boot instead of temporary front-end records.
+
+Antigravity can help us create a small reusable API layer
+
+and request and response models that match the backend contract.
+
+We also add proper loading, success, empty, and error states.
+
+The API base URL should remain configurable,
+
+so we can use a local address now and the production URL later.
+
+Let's follow one real action.
+
+A user fills in the register vehicle form and presses save.
+
+Flutter sends that information to the backend API.
+
+Spring Boot receives the request,
+
+applies validation and business rules, and stores the vehicle in SQL.
+
+The API then returns a response, and Flutter updates the vehicle list.
+
+This is the key change in this section.
+
+The screen may look almost the same,
+
+but the information is now coming from the real application stack.
+
+Next, we connect the existing Flutter login screen to the backend authentication flow.
+
+The frontend should follow the authentication contract already defined by Spring Boot,
+
+rather than inventing a different process.
+
+Valid credentials should allow the user to continue into the VMS,
+
+while invalid credentials should produce a clear message.
+
+Vehicle operations should also be protected,
+
+so an unauthenticated user cannot simply call the backend directly.
+
+And throughout this process, passwords should never be written into logs or stored insecurely.
+
+Now we connect the complete vehicle workflow.
+
+The vehicle list loads records from the backend.
+
+Register vehicle sends a create request.
+
+Editing a vehicle sends an update request,
+
+and delete calls the backend only after the user confirms the action.
+
+The UI should change only after the backend confirms success,
+
+so the screen always matches the database.
+
+We also deliberately test an error case by submitting a duplicate vehicle number.
+
+Spring Boot should reject it,
+
+and Flutter should show the backend error clearly instead of failing silently.
+
+Before moving into the testing section,
+
+we run the full local journey from beginning to end.
+
+Start the database.
+
+Start Spring Boot.
+
+And run Flutter web.
+
+Login with valid credentials.
+
+Register a vehicle.
+
+Confirm that it appears in the list.
+
+Update one field.
+
+And then delete the record.
+
+Check the SQL database as you go,
+
+so the data matches what you see on screen.
+
+Finally, confirm that duplicate and validation errors are handled properly,
+
+and that no mock vehicle data is involved anymore.
+
+At this point, our two separate projects are working together as one connected VMS.
+
+Next, we will test that system more deliberately.
+
+
+======================================================================
+Lecture 18: 16. From Mock Data to Real API Data
+======================================================================
+
+[Hands-on] Connect Flutter Web to the Spring Boot API
+
+[Hands-on] Connecting Flutter Web to the Spring Boot API
+
+Overview: The frontend is already complete with mock data and the backend is already complete with REST APIs. Now replace the mock data path with real HTTP communication.
+
+Step 1: Define the API Base URL
+
+• Configure the Flutter Web application with a development API base URL.
+
+• Keep the URL configurable so the production Render URL can be supplied later.
+
+• Do not hard-code secrets into Flutter.
+
+Step 2: Create the API Client
+
+• Ask Antigravity to create a small, reusable HTTP/API client.
+
+• Create request/response models that match the backend contract.
+
+• Add loading, success, and error states.
+
+Step 3: Replace Mock Vehicle Data
+
+• Replace the Vehicle List mock repository with the real API repository.
+
+• Connect Create, Update, and Delete actions.
+
+• Keep the UI widgets independent from raw HTTP code.
+
+Step 4: Verify the Integration
+
+• Run Spring Boot locally.
+
+• Run Flutter Web locally.
+
+• Create a vehicle in Flutter and verify it appears in the SQL database.
+
+• Refresh the Flutter list and confirm the data comes from the backend.
+
+Antigravity Prompt
+
+@workspace Replace the VMS frontend's mock vehicle data with the Spring Boot REST API. Create a clean API/data layer so widgets do not contain raw HTTP code. Use the existing backend API contract exactly; do not invent endpoint names or fields. Support list, create, update, and delete. Add loading, empty, success, and error states. Keep the API base URL configurable for development and production. After implementation, run flutter analyze and flutter build web.
+
+Verification Checklist
+
+□ Flutter can read real vehicle data.
+
+□ Create/update/delete from Flutter changes the SQL database.
+
+□ API errors are displayed gracefully.
+
+□ The UI does not contain raw HTTP implementation details.
+
+
+
+
+19. [Hands-on] Connect Login & Authentication
+
+
+======================================================================
+Lecture 19: 16. From Mock Data to Real API Data
+======================================================================
+
+[Hands-on] Connect Login & Authentication
+20. [Hands-on] Connect Vehicle CRUD
+
+
+======================================================================
+Lecture 20: 16. From Mock Data to Real API Data
+======================================================================
+
+[Hands-on] Connect Vehicle CRUD
+
+[Hands-on] Connecting the Complete Vehicle CRUD Flow
+
+Overview: Complete the real VMS workflow by wiring the existing frontend screens to the backend Create, Read, Update, and Delete endpoints.
+
+Step 1: Connect the Vehicle List
+
+• Load vehicles from the backend when the screen opens.
+
+• Show loading, empty, error, and success states.
+
+• Do not fall back silently to mock data once the real API is enabled.
+
+Step 2: Connect Register & Update
+
+• Submit the Flutter form to the backend.
+
+• Display validation errors returned by the API.
+
+• After a successful save, refresh or update the list without creating duplicate records.
+
+Step 3: Connect Delete
+
+• Show a confirmation dialog.
+
+• Call the backend delete endpoint.
+
+• Remove the record from the UI only after the backend confirms success.
+
+Step 4: Verify the Full Local Flow
+
+• Login → Register Vehicle → View → Update → Delete.
+
+• Check the SQL database after each operation.
+
+• Intentionally trigger a duplicate Vehicle Number and confirm the frontend displays the backend error clearly.
+
+Antigravity Prompt
+
+@workspace Finish the real VMS CRUD integration. Connect the existing Flutter Vehicle List and Register/Edit screens to the existing Spring Boot API. Preserve the current UI/UX. Map backend validation and error responses into user-friendly messages. Delete only after backend success, and keep loading/empty/error states consistent. Run flutter analyze and flutter build web after the changes.
+
+Verification Checklist
+
+□ All CRUD operations work from Flutter.
+
+□ Database state matches the UI.
+
+□ Duplicate Vehicle Number errors are handled correctly.
+
+□ The complete authenticated local journey works.
+
+
+
+
+
+
+
+21. Unit Testing in One Minute
+
+
+======================================================================
+Lecture 21: Course: Build a Full-Stack Web App with Flutter & Spring Boot
+======================================================================
+
+Before testing the complete VMS, we start small.
+
+A unit test checks one focused piece of application behavior in isolation.
+
+For our VMS, we will use the duplicate vehicle number rule.
+
+We want to prove that an existing vehicle number is rejected while a new vehicle number is accepted.
+
+A unit test should not depend on the real SQL database.
+
+Instead, we mock the repository and control what it returns.
+
+This lets us test only the vehicle service and its business rule.
+
+The test becomes faster, repeatable and much easier to understand when something fails.
+
+This is the first level of testing in our course.
+
+Unit testing checks one rule.
+
+Next, we will test the connected CRUD APIs
+
+and after that the complete user journey from Flutter to Spring Boot and SQL.
+
+For now, our goal is simple.
+
+Prove one business rule before relying on the full application.
+
+
+======================================================================
+Lecture 22: Course: Build a Full-Stack Web App with Flutter & Spring Boot
+======================================================================
+
+Our VMS is now connected, but a working screen is not enough to prove that the system is reliable.
+
+Before deployment, we need to test it at different levels.
+
+We will start small with one business rule, then test the connected backend through its APIs,
+
+and finally test the complete application from the user's point of view.
+
+Each test answers a different question and helps us find problems before the VMS goes live.
+
+We begin with the duplicate vehicle number rule. This is a focused unit test,
+
+because we are testing one piece of business behavior instead of running the whole application.
+
+The repository is mocked, so we do not need the real SQL database.
+
+We test two simple cases. An existing vehicle number should be rejected,
+
+while a new vehicle number should be accepted.
+
+If this test fails, we know the problem is inside this specific business rule.
+
+To understand why the test matters, temporarily break the duplicate rule and run the test again.
+
+This time, the test should fail. That failure proves that our test is
+
+actually protecting the behavior we care about. We can then give anti-gravity the exact failure,
+
+ask it to identify the cause, and apply the smallest correction.
+
+Restore the proper rule, rerun the test, and confirm that it passes again.
+
+Next, we move from one isolated rule to the connected backend.
+
+Start Spring Boot and the SQL database. Then, run the complete CRUD scenario.
+
+Create a vehicle, retrieve it, update it, verify the changed value, delete it,
+
+and confirm that it is gone. We also test error cases such as duplicate vehicle numbers,
+
+missing required fields, and invalid IDs. Unlike the unit test, this check proves
+
+that the backend layers and the real database work correctly together.
+
+Finally, we perform an end-to-end test. This time, we use the application exactly
+
+as a real user would. Start the full local stack,
+
+log in through Flutter, register a vehicle, confirm it appears in the list,
+
+update a field, and then delete the record. We also try an error path by submitting a duplicate
+
+vehicle number or incomplete data. The important point is that the entire journey
+
+now travels through Flutter, the REST API, Spring Boot, and SWILL.
+
+No mock vehicle data should be involved. By the end of this section, we have three
+
+different levels of confidence. The unit test tells us whether one important business rule
+
+behaves correctly. The API test tells us whether the backend components and SQL database work
+
+together. And the end-to-end test tells us whether a real user can complete the full VMS journey
+
+through the actual interface. If any step fails, we identify the failing layer,
+
+make the smallest safe fix, and rerun the test.
+
+Once these checks pass, the VMS is ready for the next stage, deployment.
+
+
+======================================================================
+Lecture 23: 21. Unit Testing in One Minute
+======================================================================
+
+[Hands-on] Test the Duplicate Vehicle Rule
+
+[Hands-on] Writing the Duplicate Vehicle Rule Unit Test
+
+Overview: Use the duplicate Vehicle Number rule as the first focused backend unit test. The goal is to prove one business rule in isolation before relying on the complete application.
+
+Step 1: Identify the Unit Under Test
+
+• Locate the Vehicle service method responsible for creating a vehicle.
+
+• Identify the repository call used to detect an existing Vehicle Number.
+
+• Keep the test independent of the real SQL database by mocking the repository.
+
+Step 2: Ask Antigravity to Generate the Test
+
+• Use the prompt below.
+
+• Review the test to make sure it verifies behavior rather than implementation details.
+
+Step 3: Run the Test
+
+• Run the focused test.
+
+• Confirm that an existing Vehicle Number causes the expected business exception.
+
+• Also verify that a new Vehicle Number is accepted.
+
+Step 4: Break & Fix
+
+• Temporarily change the rule so the duplicate test fails.
+
+• Run the test and inspect the failure.
+
+• Ask Antigravity to identify the smallest fix.
+
+• Restore the correct implementation and run the test again.
+
+Antigravity Prompt
+
+@workspace Create a focused unit test for the Vehicle service's duplicate Vehicle Number rule. Mock the repository so the test does not require a real database. Cover at least: existing Vehicle Number is rejected with the expected business exception, and a new Vehicle Number is accepted. Keep the test readable and behavior-focused. Run the test and fix any failure.
+
+Verification Checklist
+
+□ The unit test does not require a live database.
+
+□ Duplicate Vehicle Number fails as expected.
+
+□ New Vehicle Number succeeds.
+
+□ The test is repeatable.
+
+
+
+
+24. [Hands-on] Test the CRUD APIs
+
+
+======================================================================
+Lecture 24: 21. Unit Testing in One Minute
+======================================================================
+
+[Hands-on] Test the CRUD APIs
+25. [Hands-on] Complete the E2E Journey
+
+
+======================================================================
+Lecture 25: 21. Unit Testing in One Minute
+======================================================================
+
+[Hands-on] Complete the E2E Journey
+
+[Hands-on] Completing the VMS End-to-End Journey
+
+Overview: Test the complete user journey through the real Flutter Web frontend, Spring Boot API, and SQL database rather than testing each layer separately.
+
+Step 1: Start the Full Local Stack
+
+• Start the SQL database.
+
+• Start the Spring Boot backend.
+
+• Start Flutter Web.
+
+• Confirm Flutter is configured to use the local backend URL.
+
+Step 2: Run the Happy Path
+
+• Login with a valid user.
+
+• Register a new vehicle.
+
+• Confirm it appears in the Vehicle List.
+
+• Update one field.
+
+• Confirm the changed value appears.
+
+• Delete the vehicle and confirm removal.
+
+Step 3: Run an Error Path
+
+• Try to register the same Vehicle Number twice.
+
+• Submit invalid or incomplete data.
+
+• Confirm the UI handles the backend responses without crashing.
+
+Step 4: Record the Result
+
+• Use the course checklist to mark each step Pass/Fail.
+
+• Any failure should be fixed and rerun before moving to deployment.
+
+Antigravity Prompt
+
+@workspace Help me diagnose an E2E VMS failure. I will provide the exact step, browser error, API response, and relevant backend log. Trace the failure across Flutter Web → REST API → Spring Boot → SQL. Do not guess. Identify the most likely failing layer from the evidence, propose the smallest fix, and tell me exactly what to retest.
+
+Verification Checklist
+
+□ Login works.
+
+□ Create, Read, Update, and Delete work through the real UI.
+
+□ Duplicate/validation errors are handled.
+
+□ No local mock data is involved in the final E2E test.
+
+
+
+
+26. What Is CI/CD?
+
+
+======================================================================
+Lecture 26: Course: Build a Full-Stack Web App with Flutter & Spring Boot
+======================================================================
+
+We have built and tested our VMS locally, now it is time to make it available online.
+
+This is where CI-CD comes in. CI-CD gives us a structured way to move our application
+
+from development to a live environment. CI stands for Continuous Integration.
+
+In our project, this means reviewing our latest changes, committing them properly,
+
+and pushing them to GitHub. This gives us a reliable and trackable version of both our
+
+frontend and backend before deployment. CD stands for Continuous Deployment.
+
+Once our code is available in GitHub, deployment platforms can build and publish the application.
+
+Instead of keeping our VMS only on our computer, we make it accessible through a live URL.
+
+Our VMS has two separate projects. The Flutter web frontend will be deployed through Netlify,
+
+while the Java Spring Boot backend will be deployed through Render.
+
+They remain separate projects, but once connected, they work together as one live VMS.
+
+Before deploying anything, we need a clean and safe working state. The frontend and backend
+
+must remain separate, and we should review our changes before pushing them. Passwords,
+
+database credentials, API keys, and other secrets should never be committed to GitHub.
+
+That is our goal for this section. We will first push both projects to GitHub. Then,
+
+we will deploy the Flutter frontend to Netlify and the Spring Boot backend to Render.
+
+Finally, we will connect both sides and test the complete VMS as a real live application.
+
+
+======================================================================
+Lecture 27: 26. What Is CI/CD?
+======================================================================
+
+[Hands-on] Push the Two Projects to GitHub
+28. [Hands-on] Deploy Flutter Web to Netlify
+
+
+======================================================================
+Lecture 28: 26. What Is CI/CD?
+======================================================================
+
+[Hands-on] Deploy Flutter Web to Netlify
+
+[Hands-on] Deploying Flutter Web to Netlify
+
+Overview: Connect the separate Flutter frontend repository to Netlify, configure the Flutter Web build, and publish the frontend as a live site.
+
+Step 1: Create/Connect the Netlify Site
+
+• Sign in to Netlify using GitHub.
+
+• Choose Add new site / Import an existing project.
+
+• Select GitHub and choose vms-frontend.
+
+Step 2: Configure the Flutter Web Build
+
+• Set the production build command to the Flutter Web build command used by the project.
+
+• Set the publish directory to the generated Flutter Web output directory.
+
+• Set the branch to the branch you intend to deploy, normally main.
+
+Step 3: Configure the Production API URL
+
+• Add the production backend URL using the frontend configuration mechanism chosen during development.
+
+• Do not put database credentials or backend secrets in the Flutter application.
+
+Step 4: Deploy & Verify
+
+• Start the deployment.
+
+• Wait for the build to finish.
+
+• Open the generated Netlify URL.
+
+• Confirm the application loads before connecting the live backend.
+
+Antigravity Prompt
+
+@workspace Review the Flutter Web project for production deployment. Verify the web build command, output directory, routing requirements, and production API base URL configuration. Do not expose secrets. Run flutter analyze and flutter build web and report any deployment-specific issue before I push the changes.
+
+Verification Checklist
+
+□ Netlify build succeeds.
+
+□ Flutter Web opens from the live URL.
+
+□ Production API URL is configured correctly.
+
+□ No secrets are exposed in the frontend.
+
+
+
+
+29. [Hands-on] Deploy Spring Boot to Render
+
+
+======================================================================
+Lecture 29: 26. What Is CI/CD?
+======================================================================
+
+[Hands-on] Deploy Spring Boot to Render
+
+[Hands-on] Deploying the Java Spring Boot Backend to Render
+
+Overview: Deploy the separate Spring Boot backend repository, configure its production environment and SQL connection, and expose the REST API for the live Flutter Web frontend.
+
+Step 1: Create the Render Service
+
+• Sign in to Render and create a new Web Service from GitHub.
+
+• Select vms-backend.
+
+• Choose the appropriate Java/Maven build and start commands for the project.
+
+Step 2: Configure Environment Variables
+
+• Add the production database URL/host, username, password, and any authentication configuration as environment variables.
+
+• Never commit production secrets to GitHub.
+
+• Use the Render environment configuration rather than hard-coding credentials.
+
+Step 3: Configure CORS
+
+• Allow requests from the deployed Flutter Web domain.
+
+• Do not use a wildcard production policy unless the course explicitly requires it.
+
+• Ask Antigravity to review the CORS configuration if the browser blocks API calls.
+
+Step 4: Deploy & Verify the API
+
+• Deploy the service.
+
+• Open a public health endpoint or API documentation endpoint if the project provides one.
+
+• Test a CRUD endpoint with the production API URL.
+
+• Record the production API base URL for the Flutter frontend.
+
+Antigravity Prompt
+
+@workspace Prepare this Spring Boot VMS backend for Render deployment. Review the build/start configuration, environment-based database settings, server port configuration, CORS for the production Flutter Web domain, and health endpoint. Do not hard-code secrets. Run the test/build process and identify any deployment issue before I push.
+
+Verification Checklist
+
+□ Render deployment succeeds.
+
+□ Spring Boot starts without database/configuration errors.
+
+□ The production API responds.
+
+□ CORS allows the intended Flutter Web origin only.
+
+
+
+
+30. Final Live Check
+
+
+======================================================================
+Lecture 30: 26. What Is CI/CD?
+======================================================================
+
+Final Live Check
+
+[Hands-on] Final Live Check & Troubleshooting
+
+Overview: Step out of the developer role and test the VMS as a real user. Verify the live Flutter Web application, live Spring Boot API, and production SQL database as one system.
+
+Step 1: The End-to-End Happy Path
+
+• Open an incognito/private browser window.
+
+• Open the live Flutter Web URL.
+
+• Log in with the course test account.
+
+• Register a test vehicle.
+
+• Verify it appears in the vehicle list.
+
+• Update it and verify the change.
+
+• Delete it and confirm removal.
+
+Step 2: Production Edge Cases
+
+• Submit incomplete vehicle data.
+
+• Try a duplicate Vehicle Number.
+
+• Refresh the page and verify data is still loaded from the backend.
+
+• Open the browser's device toolbar and check the core screens at a smaller width.
+
+Step 3: Troubleshooting Matrix
+
+• Blank screen: inspect browser console and Netlify build logs; verify the production frontend configuration.
+
+• API request blocked: inspect the browser Network tab and verify the Spring Boot CORS configuration.
+
+• 500/DB error: inspect Render logs and verify production database environment variables.
+
+• Works locally but not online: compare local and production API base URLs, environment variables, and build configuration.
+
+Step 4: Agent Support Loop
+
+• Copy the exact browser error, HTTP status, API response, or Render/Netlify log.
+
+• Paste the evidence into Antigravity and identify the affected file/layer.
+
+• Ask the agent for the smallest fix, rebuild locally, push the fix, and repeat the live test.
+
+Antigravity Prompt
+
+My production VMS has failed this exact test: [PASTE TEST STEP]. Here is the exact browser error/API response/log: [PASTE EVIDENCE]. Trace the problem across Flutter Web, REST API, Spring Boot, CORS/configuration, and SQL. Do not regenerate the application. Identify the failing layer, explain the evidence, make the smallest fix, verify locally, and tell me exactly what production step to retest.
+
+Verification Checklist
+
+□ Live login works.
+
+□ Live CRUD works.
+
+□ Database changes persist.
+
+□ Common production errors are diagnosed from evidence rather than guessed.
+
+□ The final live VMS journey passes.
+
+
+
+
+31. Conclusion: What You Built & What's Next
+
+
+======================================================================
+Lecture 31: Course: Build a Full-Stack Web App with Flutter & Spring Boot
+======================================================================
+
+Congratulations! In this course, you built a working vehicle management system from start to finish.
+
+You created the Flutter web frontend, connected it with the Java Spring Boot backend,
+
+managed vehicle records, connected a database, pushed the projects to GitHub,
+
+and prepared the system for live deployment.
+
+More importantly, you practiced the full development journey.
+
+You did not just write code. You understood requirements,
+
+used AI to support development, built frontend and backend features,
+
+tested important business rules, and learned how to move a project toward production.
+
+This first version is only the beginning.
+
+From here, you can continue improving the VMS by adding roles, permissions, search, filters,
+
+reports, dashboards, stronger validation, and more test coverage.
+
+You can also automate more of the CICD process as the project grows.
+
+The main goal of this course was to help you think like a builder.
+
+You learned how to break down a feature, ask AI for support,
+
+review the output, test the work, and ship the result.
+
+Keep practicing this process and you will be able to build
+
+larger and better applications with confidence.
+
+
+======================================================================
+Lecture 32: 31. Conclusion: What You Built & What's Next
+======================================================================
+
+Assignment: Assignment 1: Build the Stark Group VMS
+60 minutes to complete
+Rebuild the Stark Group VMS using Flutter Web, Spring Boot, SQL, and REST APIs. Complete login and vehicle CRUD, connect the frontend with the backend, store real data in the database, prevent duplicate vehicle numbers, and verify the complete workflow.
+Skip assignment
+Start assignment

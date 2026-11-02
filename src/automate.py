@@ -1,20 +1,32 @@
 #!/usr/bin/env python3
 """
-Udemy Course Transcript & Hands-on Text Extractor
+Udemy Course Transcript & Lecture Text Extractor
 
-Robust Traversal & Deduplication:
-1. Launches persistent browser context so session persists.
-2. Lets you log in manually and press Enter when ready.
-3. Clears any existing content in the output file before scraping begins.
-4. Collects and extracts all lecture items sequentially.
-5. Reliably advances via 'Next' button and curriculum fallback without getting stuck.
+Simple, Reliable, Interactive-First Flow:
+1. Launches visible browser window using your saved session in Browser_Session/.
+2. Navigates to the course player.
+3. Lets you manually click on whichever lecture you want to start from (e.g. Lecture 1).
+4. Once you see the lecture on screen, you press ENTER in the terminal.
+5. From that exact lecture onwards, the scraper runs completely hands-free:
+   - Pauses the video.
+   - Clicks the Transcript button and copies all text.
+   - If article/text, copies the reading material.
+   - Saves to data/output/UdemyTranscript.txt (deduplicated).
+   - Clicks the purple right-arrow button to automatically advance to the next lecture.
+   - Repeats until you reach the end of the course!
 """
 
 import os
 import sys
 import time
+import hashlib
 from pathlib import Path
 from dotenv import load_dotenv
+
+# Ensure UTF-8 output encoding on Windows consoles
+if sys.platform == "win32":
+    sys.stdout.reconfigure(encoding="utf-8")
+    sys.stderr.reconfigure(encoding="utf-8")
 
 project_root = Path(__file__).resolve().parent.parent if Path(__file__).resolve().parent.name == "src" else Path(__file__).resolve().parent
 env_candidates = [
@@ -62,153 +74,231 @@ def clean_and_dedup_cues(cues_list):
     return cleaned
 
 
-def extract_current_lecture_title(page, lecture_idx):
-    """Extracts current lecture heading from player, sidebar, or breadcrumbs."""
-    title_selectors = [
-        'h1[data-purpose="lecture-title"]',
-        'div[data-purpose="header-title"] h1',
-        'span[data-purpose="item-title"]',
-        'h2[data-purpose="item-title"]',
+def get_current_lecture_title(page, lecture_num):
+    """
+    Extracts the true lecture title (e.g., '1. Welcome to Stark Group',
+    '2. What You Will Build', etc.) from the active sidebar item, player header,
+    or top breadcrumbs. Avoids general course title names.
+    """
+    # 1. Inspect the highlighted/active item in the curriculum sidebar
+    sidebar_current_selectors = [
+        'div[class*="curriculum-item-link--is-current"] span[data-purpose="item-title"]',
         'div[class*="curriculum-item-link--is-current"] span',
-        'li[class*="is-current"] span'
+        'div[class*="is-current"] span[data-purpose="item-title"]',
+        'li[class*="is-current"] span[data-purpose="item-title"]',
+        'a[class*="is-current"] span[data-purpose="item-title"]',
+        'div[aria-current="true"] span',
+        'li[aria-current="true"] span'
     ]
-    for sel in title_selectors:
+
+    for sel in sidebar_current_selectors:
         try:
-            loc = page.locator(sel)
-            if loc.first.is_visible(timeout=1000):
-                text = loc.first.inner_text().strip()
+            loc = page.locator(sel).first
+            if loc.is_visible(timeout=800):
+                text = loc.inner_text().strip()
                 lines = [l.strip() for l in text.split("\n") if l.strip() and "completed" not in l.lower() and not l.strip().endswith("min")]
-                if lines:
+                if lines and len(lines[0]) > 2:
                     return lines[0]
         except Exception:
             pass
 
-    # Fallback to document title
-    doc_title = page.title()
-    if "|" in doc_title:
-        candidate = doc_title.split("|")[0].strip()
-        if candidate and candidate.lower() != "udemy":
-            return candidate
+    # 2. Inspect the lecture title in the player/page body (below or above player)
+    content_heading_selectors = [
+        'h1[data-purpose="lecture-title"]',
+        'h2[data-purpose="lecture-title"]',
+        'div[data-purpose="lecture-title"]',
+        'h1[class*="lecture-title"]',
+        'h2[class*="lecture-title"]',
+        'span[data-purpose="item-title"]'
+    ]
 
-    return f"Lecture {lecture_idx}"
+    for sel in content_heading_selectors:
+        try:
+            loc = page.locator(sel).first
+            if loc.is_visible(timeout=800):
+                text = loc.inner_text().strip()
+                if text and "Course:" not in text and len(text) > 2:
+                    return text
+        except Exception:
+            pass
 
-
-def extract_lecture_content(page):
-    """Extracts either video transcript cues or article body."""
-    content_lines = []
-
-    # 1. Try to open transcript if video lecture
+    # 3. Direct DOM query for the item-title inside whichever link is currently active
     try:
-        transcript_btn = page.locator('button:has-text("Transcript"), button[data-purpose="transcript-toggle"]')
-        if transcript_btn.is_visible(timeout=3000):
-            panel = page.locator('[data-purpose="transcript-panel"], div[class*="transcript--transcript-panel"]')
-            if not panel.is_visible(timeout=1000):
-                transcript_btn.click()
-                page.wait_for_timeout(2000)
+        active_title = page.evaluate("""() => {
+            // Find active/current curriculum row
+            const currentItem = document.querySelector('[class*="is-current"], [aria-current="true"], [data-purpose*="current"]');
+            if (currentItem) {
+                const titleEl = currentItem.querySelector('[data-purpose="item-title"]') || currentItem.querySelector('span');
+                if (titleEl && titleEl.innerText) {
+                    return titleEl.innerText.trim();
+                }
+            }
+            return null;
+        }""")
+        if active_title and "completed" not in active_title.lower() and len(active_title) > 2:
+            return active_title
     except Exception:
         pass
 
-    # Extract cues
+    # 4. Fallback to document title ONLY if it contains a specific lecture name
+    doc_title = page.title()
+    if "|" in doc_title:
+        candidate = doc_title.split("|")[0].strip()
+        # Ensure it's not the generic course name
+        if candidate and "build a full-stack" not in candidate.lower() and candidate.lower() != "udemy":
+            return candidate
+
+    return f"Lecture {lecture_num}"
+
+
+def extract_current_lecture_content(page):
+    """
+    Extracts text without playing video:
+    - Pauses video immediately.
+    - Clicks the transcript icon button in the player control bar.
+    - Extracts cues from the opened transcript container.
+    - If article/text, copies the reading material.
+    """
     try:
-        cues = page.locator('[data-purpose="cue-text"]')
-        if cues.count() == 0:
-            cues = page.locator('p[data-purpose="transcript-cue"], [class*="transcript--cue-container"] span')
+        page.evaluate("""() => {
+            document.querySelectorAll('video').forEach(v => {
+                if (!v.paused) v.pause();
+            });
+        }""")
+    except Exception:
+        pass
 
-        count = cues.count()
-        if count > 0:
-            raw_cues = []
-            for i in range(count):
-                txt = cues.nth(i).inner_text().strip()
-                if txt:
-                    raw_cues.append(txt)
-            content_lines = clean_and_dedup_cues(raw_cues)
-            if content_lines:
-                print(f"    [+] Extracted {len(content_lines)} transcript cue lines")
-    except Exception as e:
-        print(f"    [-] Transcript extraction notice: {e}")
+    content_lines = []
 
-    # 2. Check for article / text content if no transcript cues found
-    if not content_lines:
+    # Wake up control bar
+    try:
+        video_el = page.locator('video, div[data-purpose="video-controls"]').first
+        if video_el.is_visible(timeout=1000):
+            video_el.hover()
+            page.wait_for_timeout(300)
+    except Exception:
+        pass
+
+    # Transcript toggle button
+    transcript_icon_selectors = [
+        'button[data-purpose="transcript-toggle"]',
+        'button[aria-label*="transcript" i]',
+        'button:has(svg[data-purpose*="transcript"])',
+        'button:has-text("Transcript")',
+        'button#tabs--1--tab--transcript',
+        'button[data-purpose="tab-transcript"]'
+    ]
+
+    for sel in transcript_icon_selectors:
         try:
-            article_loc = page.locator('div[data-purpose="article-body"], div[class*="article-content"], div[data-purpose="lecture-description"]')
-            if article_loc.is_visible(timeout=2000):
-                article_txt = article_loc.inner_text().strip()
-                if article_txt:
-                    content_lines = [article_txt]
-                    print("    [+] Extracted article text content")
+            btn = page.locator(sel).first
+            if btn.is_visible(timeout=1200):
+                panel = page.locator('[data-purpose="transcript-panel"], div[class*="transcript--transcript-panel"]').first
+                if not panel.is_visible(timeout=1000):
+                    btn.click()
+                    page.wait_for_timeout(2000)
+                break
         except Exception:
             pass
+
+    # Extract cues from the transcript panel
+    cue_selectors = [
+        '[data-purpose="transcript-panel"] [data-purpose="cue-text"]',
+        '[data-purpose="cue-text"]',
+        'div[class*="transcript--cue-container"] p',
+        'div[class*="transcript--cue-container"] span',
+        'p[data-purpose="transcript-cue"]',
+        '[data-purpose="transcript-panel"] p'
+    ]
+
+    for c_sel in cue_selectors:
+        try:
+            cues = page.locator(c_sel)
+            count = cues.count()
+            if count > 0:
+                raw_cues = []
+                for i in range(count):
+                    txt = cues.nth(i).inner_text().strip()
+                    if txt:
+                        raw_cues.append(txt)
+                cleaned = clean_and_dedup_cues(raw_cues)
+                if cleaned:
+                    content_lines = cleaned
+                    print(f"    [+] Transcript extracted: {len(content_lines)} cues")
+                    break
+        except Exception:
+            pass
+
+    # If not a video (i.e. text/article/quiz), extract reading content
+    if not content_lines:
+        article_selectors = [
+            'div[data-purpose="article-body"]',
+            'div[class*="article-content"]',
+            'div[data-purpose="lecture-description"]',
+            'div.ud-text-sm.article-content',
+            'div[class*="content-container"]'
+        ]
+        for a_sel in article_selectors:
+            try:
+                article_loc = page.locator(a_sel).first
+                if article_loc.is_visible(timeout=1500):
+                    article_txt = article_loc.inner_text().strip()
+                    if article_txt and len(article_txt) > 20:
+                        content_lines = [article_txt]
+                        print("    [+] Article/text reading copied")
+                        break
+            except Exception:
+                pass
 
     return "\n\n".join(content_lines) if content_lines else ""
 
 
-def click_next_lecture(page, visited_urls):
-    """
-    Attempts multiple reliable strategies to click the Next lecture:
-    1. Player Next button ([data-purpose="go-to-next-item"]).
-    2. Controls bar next button.
-    3. Curriculum sidebar link click with re-opened drawer.
-    """
-    # Strategy 1: Dedicated next button in player
-    next_selectors = [
+def click_purple_right_arrow(page):
+    """Clicks the purple right-arrow button on the player edge."""
+    # 1. Exact SVG matching your inspection
+    exact_selectors = [
+        'svg[aria-label="Go to Next lecture"]',
+        'button:has(svg[aria-label="Go to Next lecture"])',
+        'button:has(use[*|href*="icon-next"])',
         'button[data-purpose="go-to-next-item"]',
         'button[aria-label="Next item"]',
-        'button[aria-label="Go to next item"]',
-        'a[data-purpose="go-to-next-item"]',
-        'button:has-text("Next lecture")',
-        'a:has-text("Next lecture")'
+        'button[aria-label="Next lecture"]'
     ]
-    for sel in next_selectors:
-        btn = page.locator(sel)
-        if btn.is_visible(timeout=1500) and not btn.get_attribute("disabled"):
-            try:
-                btn.click()
-                page.wait_for_timeout(4000)
-                curr = page.url.split("?")[0]
-                if curr not in visited_urls:
-                    return True
-            except Exception:
-                pass
-
-    # Strategy 2: Use curriculum drawer
-    print("    [*] Next button not available; searching curriculum sidebar...")
-    try:
-        # Ensure drawer is open
-        drawer_btn = page.locator('button[data-purpose="curriculum-dropdown-button"], button[aria-label="Course content"], button[data-purpose="course-content-tab"]')
-        if drawer_btn.is_visible(timeout=2000):
-            try:
-                drawer_btn.click()
-                page.wait_for_timeout(1000)
-            except Exception:
-                pass
-
-        # Expand sections
-        toggles = page.locator('button[data-purpose="section-panel-toggle"][aria-expanded="false"]')
-        for t in range(toggles.count()):
-            try:
-                toggles.nth(t).click()
-                page.wait_for_timeout(200)
-            except Exception:
-                pass
-
-        # Query all lecture links
-        lecture_links = page.locator('a[href*="/learn/lecture/"]')
-        total = lecture_links.count()
-
-        for l_idx in range(total):
-            item = lecture_links.nth(l_idx)
-            href = item.get_attribute("href") or ""
-            full_href = ("https://www.udemy.com" + href) if href.startswith("/") else href
-            clean_href = full_href.split("?")[0]
-
-            if clean_href not in visited_urls:
-                item.scroll_into_view_if_needed(timeout=2000)
-                item.click()
-                page.wait_for_timeout(4000)
+    for sel in exact_selectors:
+        try:
+            el = page.locator(sel).first
+            if el.is_visible(timeout=1200):
+                el.scroll_into_view_if_needed(timeout=1000)
+                el.click(force=True)
                 return True
+        except Exception:
+            pass
 
-    except Exception as ex:
-        print(f"    [!] Error advancing via curriculum: {ex}")
+    # 2. JavaScript DOM force click
+    try:
+        clicked_js = page.evaluate("""() => {
+            const svg = document.querySelector('svg[aria-label="Go to Next lecture"]') 
+                     || document.querySelector('use[*|href="#icon-next"]')?.closest('svg');
+            if (svg) {
+                const clickable = svg.closest('button, a') || svg;
+                if (!clickable.hasAttribute('disabled') && clickable.getAttribute('aria-disabled') !== 'true') {
+                    clickable.click();
+                    return true;
+                }
+            }
+            return false;
+        }""")
+        if clicked_js:
+            return True
+    except Exception:
+        pass
+
+    # 3. Native player hotkey (Shift + N)
+    try:
+        page.keyboard.press("Shift+N")
+        return True
+    except Exception:
+        pass
 
     return False
 
@@ -238,11 +328,9 @@ def run_automation():
         output_path = (project_root / raw_output_file).resolve()
 
     output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Clean existing content in output file before starting
     initialize_output_file(output_path)
 
-    user_data_dir = project_root / ".browser_session"
+    user_data_dir = project_root / "Browser_Session"
     user_data_dir.mkdir(exist_ok=True)
 
     with sync_playwright() as p:
@@ -250,7 +338,6 @@ def run_automation():
         context = p.chromium.launch_persistent_context(
             user_data_dir=str(user_data_dir),
             headless=False,
-            channel="chrome" if os.name == "nt" else None,
             args=[
                 "--disable-blink-features=AutomationControlled",
                 "--start-maximized"
@@ -260,79 +347,114 @@ def run_automation():
         )
         page = context.pages[0] if context.pages else context.new_page()
 
-        print("\n" + "=" * 70)
-        print(">>> STEP 1: LOG IN TO UDEMY <<<")
-        print("Opening Udemy in the browser...")
-        print("Log in manually if not already logged in.")
-        print("=" * 70 + "\n")
+        print("[*] Checking existing login session...")
+        page.goto("https://www.udemy.com/", wait_until="domcontentloaded")
+        page.wait_for_timeout(3000)
 
-        page.goto("https://www.udemy.com/join/login-popup/", wait_until="domcontentloaded")
+        user_nav = page.locator('[data-purpose="user-dropdown"], a[href*="/home/my-courses"], button[aria-label*="user profile" i], a[href*="/user/edit-profile"]')
+        already_logged_in = False
+        try:
+            already_logged_in = user_nav.first.is_visible(timeout=3000)
+        except Exception:
+            already_logged_in = False
 
-        input("\n[?] >>> Once you are logged in, PRESS ENTER HERE to start scraping... <<< ")
+        if already_logged_in:
+            print("\n[OK] Existing login session found! Skipping login step.")
+        else:
+            print("\n" + "=" * 70)
+            print(">>> STEP 1: LOG IN TO UDEMY <<<")
+            print("No active session detected. Navigating to login page...")
+            print("=" * 70 + "\n")
+            page.goto("https://www.udemy.com/join/login-popup/", wait_until="domcontentloaded")
+            input("\n[?] >>> Once you are logged in, PRESS ENTER HERE to continue... <<< ")
 
-        print("\n[*] Navigating directly to course learning player...")
+        print("\n[*] Navigating to course learning player...")
         print(f"[*] Target URL: {course_learn_url}")
         page.goto(course_learn_url, wait_until="domcontentloaded")
         page.wait_for_timeout(6000)
 
-        # Handle landing page if it redirected back to course overview
-        goto_btn = page.locator('a:has-text("Go to course"), button:has-text("Go to course"), a:has-text("Start course"), button:has-text("Start course")')
+        goto_btn = page.locator('a:has-text("Go to course"), button:has-text("Go to course"), a:has-text("Start course"), button:has-text("Start course")').first
         if goto_btn.is_visible(timeout=3000):
             print("[*] Clicking 'Go to course'...")
-            goto_btn.first.click()
+            goto_btn.click()
             page.wait_for_timeout(6000)
 
-        # Ensure sidebar course content is open initially
-        try:
-            content_tab = page.locator('button[data-purpose="course-content-tab"], button:has-text("Course content")')
-            if content_tab.is_visible(timeout=3000):
-                content_tab.click()
-                page.wait_for_timeout(2000)
-        except Exception:
-            pass
-
-        print("\n[*] Starting sequential lecture scraper...")
-
-        visited_urls = set()
-        lecture_idx = 1
-        max_lectures = 250
-        consecutive_failures = 0
-
-        while lecture_idx <= max_lectures:
-            current_url = page.url
-            clean_curr = current_url.split("?")[0]
-            print(f"\n--- Processing Lecture {lecture_idx} ---")
-            print(f"[*] Page URL: {clean_curr}")
-
-            # Extract title and content for current lecture
-            title = extract_current_lecture_title(page, lecture_idx)
-            print(f"[*] Title: {title}")
-
-            content = extract_lecture_content(page)
-            if content:
-                append_to_transcript_file(output_path, f"Lecture {lecture_idx}: {title}", content)
-            else:
-                print(f"    [-] No text/transcript found on this lecture.")
-
-            visited_urls.add(clean_curr)
-
-            # Advance to next lecture
-            advanced = click_next_lecture(page, visited_urls)
-
-            if not advanced:
-                consecutive_failures += 1
-                print(f"    [!] Could not advance to next lecture (attempt {consecutive_failures} of 2).")
-                page.wait_for_timeout(2000)
-                if consecutive_failures >= 2:
-                    print("\n[✓] Reached the end of the course or no more lectures found.")
-                    break
-            else:
-                consecutive_failures = 0
-
-            lecture_idx += 1
+        # Clear, foolproof checkpoint:
+        print("\n" + "=" * 70)
+        print(">>> READY TO SCRAPE <<<")
+        print("Please check the browser:")
+        print("1. If not already on Lecture 1 ('1. Welcome to Stark Group'),")
+        print("   simply click on Lecture 1 in the right sidebar right now.")
+        print("2. Once Lecture 1 is open in the player, PRESS ENTER HERE to start!")
+        print("=" * 70)
+        input("\n[?] >>> Press Enter when Lecture 1 is open in the player... <<< ")
 
         print("\n" + "=" * 70)
-        print(f"[✓] Scraper completed! Transcripts saved to:")
+        print("[*] STARTING SCRAPER (Sequential hands-free scrape)")
+        print("=" * 70)
+
+        lecture_num = 1
+        seen_urls = set()
+        seen_content_hashes = set()
+        consecutive_stalls = 0
+
+        while lecture_num <= 300:
+            current_url = page.url.split("?")[0]
+            print(f"\n--- [Processing Lecture {lecture_num}] ---")
+            print(f"[*] URL: {current_url}")
+
+            # 1. Title
+            title = get_current_lecture_title(page, lecture_num)
+            print(f"[*] Title: {title}")
+
+            # 2. Extract Transcript or Reading content
+            content = extract_current_lecture_content(page)
+
+            if content:
+                content_hash = hashlib.sha256(content.strip().encode("utf-8")).hexdigest()
+
+                if content_hash in seen_content_hashes:
+                    print("    [!] DUPLICATE: Content already captured. Skipping re-write.")
+                else:
+                    append_to_transcript_file(output_path, f"Lecture {lecture_num}: {title}", content)
+                    seen_content_hashes.add(content_hash)
+            else:
+                print("    [-] Notice: No transcript or text found on this lecture.")
+
+            seen_urls.add(current_url)
+
+            # 3. Click the Purple Right-Arrow button
+            print("    [*] Clicking purple right-arrow for next lecture...")
+            clicked = click_purple_right_arrow(page)
+
+            if not clicked:
+                print("\n[✓] Next arrow not clickable or end of course reached.")
+                break
+
+            # Wait for player to transition to next lecture
+            prev_url = current_url
+            transitioned = False
+            for _ in range(6):  # Wait up to 6 seconds for player to advance
+                page.wait_for_timeout(1000)
+                new_url = page.url.split("?")[0]
+                if new_url != prev_url:
+                    transitioned = True
+                    break
+
+            if not transitioned:
+                consecutive_stalls += 1
+                print(f"    [!] Player remained on same lecture (stall {consecutive_stalls} of 2).")
+            else:
+                consecutive_stalls = 0
+
+            if consecutive_stalls >= 2:
+                print("\n[✓] Finished all lectures! No more new lectures to advance to.")
+                break
+
+            lecture_num += 1
+
+        print("\n" + "=" * 70)
+        print(f"[✓] SCRAPING COMPLETED! Output saved to:")
         print(f"    {output_path}")
         print("=" * 70 + "\n")
         context.close()
