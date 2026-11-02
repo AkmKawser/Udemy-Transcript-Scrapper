@@ -1,0 +1,6 @@
+.env
+configuration/.env
+.browser_session/
+__pycache__/
+*.pyc
+

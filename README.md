@@ -1,16 +1,16 @@
 # Udemy Transcript & Lecture Content Scraper
 
-An automated Playwright-based scraper that logs into your Udemy account, handles email verification (2FA/OTP), navigates through all lectures in a purchased course, and extracts full video transcripts and article lecture contents into a consolidated text file inside `data/output/`.
+An automated Playwright-based scraper that launches a clean browser session, lets you log into Udemy manually with whatever method you prefer (email OTP, password, Google OAuth, etc.), detects your login, and automatically navigates through the course to extract full video transcripts and article lecture contents into `data/output/UdemyTranscript.txt`.
 
 ---
 
 ## 📌 Features
 
-- **Automated Login & 2FA**: Automatically logs into Udemy and retrieves the 6-digit email verification code via IMAP (Gmail supported). If email integration isn't configured, falls back to manual terminal prompt.
-- **Transcript Extraction**: Opens the Udemy transcript panel, extracts all cue blocks with timestamps, and formats them cleanly.
-- **Article & Text Lectures**: Detects non-video text lectures and extracts body content.
-- **Course Traversal**: Automatically cycles through lectures using the course navigation controls.
-- **Real-Time Synchronous Saving**: Transcripts are written to disk as each lecture finishes into `data/output/` so you never lose progress.
+- **Safe Manual Login**: Opens the browser and holds execution with zero bot interference, letting you log in naturally so Udemy's anti-bot protections are not triggered.
+- **Persistent Session**: Uses a local `.browser_session/` cache so you may not even need to re-login on future runs.
+- **Automatic Traversal**: Once login is confirmed, the script automatically opens the course, visits every lecture in order, opens the transcript drawer, and extracts the text.
+- **Handles Both Video Transcripts & Articles**: Captures timestamped cues from video lectures as well as reading material from text/article lectures.
+- **Synchronous Output**: Appends text in real-time to `data/output/UdemyTranscript.txt` as each lecture completes.
 
 ---
 
@@ -18,10 +18,10 @@ An automated Playwright-based scraper that logs into your Udemy account, handles
 
 ```text
 ├── configuration/                        # Environment configuration
-│   ├── .env                              # Local secrets (git-ignored, do NOT commit)
-│   └── .env.example                      # Safe template — copy to .env and fill in values
+│   ├── .env                              # Local config (git-ignored, do NOT commit)
+│   └── .env.example                      # Safe template
 ├── data/                                 # Data storage
-│   └── output/                           # Scraped transcript text files (e.g. UdemyTranscript.txt)
+│   └── output/                           # Scraped transcript text files (UdemyTranscript.txt)
 ├── docs/                                 # Documentation and reference files
 ├── messages/                             # Development transcripts and prompt logs
 │   └── messages with antigravity.md      # Chat history & project log
@@ -41,7 +41,6 @@ An automated Playwright-based scraper that logs into your Udemy account, handles
 
 - **Python 3.9+** installed on your system.
 - An active Udemy account with access to the course you want to scrape.
-- (Optional, but recommended) Gmail account with **App Password** enabled for automatic 2FA code retrieval.
 
 ---
 
@@ -53,91 +52,46 @@ An automated Playwright-based scraper that logs into your Udemy account, handles
    cd Udemy-Transcript-Scrapper
    ```
 
-2. **Create and activate a virtual environment:**
-   - **Windows (PowerShell):**
-     ```powershell
-     python -m venv .venv
-     .\.venv\Scripts\Activate.ps1
-     ```
-   - **macOS / Linux:**
-     ```bash
-     python3 -m venv .venv
-     source .venv/bin/activate
-     ```
-
-3. **Install dependencies:**
+2. **Install dependencies:**
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Install Playwright Browsers:**
+3. **Install Playwright Browsers:**
    ```bash
-   playwright install chromium
+   python -m playwright install chromium
    ```
 
 ---
 
 ### 3. Configuration
 
-1. Copy the example configuration to create your `.env` file (if not already created):
-   - **Windows (PowerShell):**
-     ```powershell
-     Copy-Item configuration\.env.example configuration\.env
-     ```
-   - **macOS / Linux:**
-     ```bash
-     cp configuration/.env.example configuration/.env
-     ```
-
-2. Open `configuration/.env` and update the parameters:
+Your `configuration/.env` only needs the course URL (and optional output path):
 
 ```env
-# Udemy Credentials
-UDEMY_EMAIL="your_udemy_email@example.com"
-UDEMY_PASSWORD="your_udemy_password"
-COURSE_URL="https://www.udemy.com/course/your-course-slug"
+# Udemy Configuration
+COURSE_URL="https://www.udemy.com/course/build-a-full-stack-web-app-with-flutter-spring-boot"
 
-# Gmail IMAP Credentials for Automatic 2FA Code (Optional)
-# To create an App Password: https://myaccount.google.com/apppasswords
-EMAIL_USER="your_email@gmail.com"
-EMAIL_APP_PASSWORD="your_16_char_app_password"
-IMAP_SERVER="imap.gmail.com"
-
-# Output and Execution Settings
+# Output Configuration
 OUTPUT_FILE="data/output/UdemyTranscript.txt"
-HEADLESS=false
 ```
-
-> **Note on 2FA / Verification Code**:
-> If you leave `EMAIL_APP_PASSWORD` blank, the scraper will pause at login and ask you to enter the 6-digit code directly in the terminal.
 
 ---
 
 ### 4. Running the Scraper
 
-Run the script from the root directory using Python:
+Run the script from the root directory:
 
 ```bash
 python src/automate.py
 ```
 
 #### What happens during execution:
-1. Chromium launches and navigates to the Udemy login page.
-2. The script inputs your credentials.
-3. If an email verification prompt appears:
-   - It fetches the 6-digit code from your email via IMAP (or prompts you in the terminal).
-   - Enters the code and confirms.
-4. Navigates to `COURSE_URL`.
-5. Iterates through each lecture:
-   - If a video lecture: opens the transcript sidebar, extracts text and timestamps.
-   - If a text/article lecture: extracts all body content.
-   - Saves content to the designated output file under `data/output/` (e.g. `data/output/UdemyTranscript.txt`).
-   - Clicks "Next" to continue until all lectures are complete.
-
----
-
-## ⚠️ Important Considerations & Best Practices
-
-- **Respect Terms of Service**: Use this tool only for personal offline study of courses you have purchased or legally have access to.
-- **Keep `.env` Secret**: Never commit `configuration/.env` to source control. It is listed in `.gitignore`.
-- **Browser Automation Headless vs. Headed**: Keep `HEADLESS=false` initially so you can observe the browser and verify successful login.
+1. Chromium opens with `https://www.udemy.com/join/login-popup/`.
+2. **Manual Login**:
+   - The terminal announces that it is holding execution.
+   - You log in manually inside the browser using your email, 6-digit code, password, or Google account.
+3. Once logged in:
+   - The script detects that you are logged in (you can also hit **Enter** in the terminal if needed).
+   - It navigates directly to `COURSE_URL`.
+   - Iterates through each lecture, extracts the transcripts and article text, and writes them into `data/output/UdemyTranscript.txt`.
