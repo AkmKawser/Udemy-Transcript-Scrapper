@@ -102,14 +102,83 @@ npm run zip:firefox
 
 ---
 
-## 📦 How to Install the Extension Manually
+## 📦 How to Install the Extension (Step-by-Step)
 
-### In Google Chrome / Brave / Edge:
-1. Run `npm run build` (or download the release zip and unpack it).
-2. Open your browser and navigate to `chrome://extensions/`.
-3. Enable **Developer mode** (toggle in the top-right corner).
-4. Click **Load unpacked** and select the `dist/chrome-mv3` folder.
-5. Open any Udemy course video or lecture, click the extension icon, and export your transcripts!
+You can install this extension directly into any Chromium-based browser (**Google Chrome**, **Brave**, **Microsoft Edge**, **Opera**, or **Vivaldi**) in just a few minutes using **Developer Mode**.
+
+---
+
+### Method A: Install from a Release ZIP (Recommended for Users)
+
+1. **Download the Release ZIP**:
+   - Go to the [Releases](https://github.com/AkmKawser/Udemy-Transcript-Scrapper/releases) page.
+   - Download the latest `udemy-transcript-scrapper-1.0.0-chrome.zip`.
+2. **Extract the ZIP file**:
+   - Right-click the downloaded `.zip` file and select **Extract All...** (or unpack it using 7-Zip / WinRAR).
+   - Extract it to a permanent folder on your computer (e.g. `Documents/Extensions/udemy-transcript-scrapper`).
+   > ⚠️ **Important**: Do not delete or move this folder after installing, as the browser loads the extension files directly from here.
+3. **Open Browser Extensions Page**:
+   - In your browser's address bar, type the following and press Enter:
+     - **Google Chrome**: `chrome://extensions`
+     - **Brave Browser**: `brave://extensions`
+     - **Microsoft Edge**: `edge://extensions`
+4. **Enable Developer Mode**:
+   - Look in the **top-right corner** of the Extensions page.
+   - Toggle the switch labeled **Developer mode** to **ON**.
+5. **Load the Extension**:
+   - Three new buttons will appear in the top-left corner: **Load unpacked**, **Pack extension**, and **Update**.
+   - Click **Load unpacked**.
+   - In the file selection dialog, browse to and select the extracted folder (make sure to select the folder containing `manifest.json`).
+6. **Pin the Extension**:
+   - Click the puzzle-piece icon (🧩) in the top-right toolbar of your browser.
+   - Find **Udemy Transcript Scrapper** and click the **Pin** icon (📌) to keep it visible in your toolbar.
+
+---
+
+### Method B: Install by Building from Source Code (For Developers)
+
+If you have cloned this repository locally, you can build and load the unpacked extension in seconds:
+
+1. **Open your terminal** in the repository root directory:
+   ```bash
+   cd Udemy-Transcript-Scrapper
+   ```
+2. **Install dependencies**:
+   ```bash
+   npm install
+   ```
+3. **Build the extension**:
+   ```bash
+   npm run build
+   ```
+   This generates the production-ready extension inside the `dist/chrome-mv3/` directory.
+4. **Load into Browser**:
+   - Navigate to `chrome://extensions/`.
+   - Enable **Developer mode** (top-right toggle).
+   - Click **Load unpacked**.
+   - Select the `dist/chrome-mv3` folder inside this project.
+5. **Pin and Use**:
+   - Click the extension icon in your browser toolbar while viewing any Udemy course!
+
+---
+
+### 💡 How to Use the Extension on Udemy:
+
+1. Log in to your account at [Udemy.com](https://www.udemy.com) and open any enrolled course.
+2. Navigate to any lecture player (URL format: `https://www.udemy.com/course/.../learn/lecture/...`).
+3. Click the **Udemy Transcript Scrapper** icon in your browser toolbar.
+4. The popup will automatically detect the course title and lecture:
+   - Click **Download Current Lecture** to save the active transcript or article reading as a Markdown (`.md`) file.
+   - Click **Export Course Transcripts** to generate a complete `.zip` archive containing all sections and lectures formatted neatly.
+
+---
+
+### 🔄 How to Update the Extension:
+
+When a new version is released:
+1. Re-run `npm run build` (or replace the files in your unpacked folder with the new release files).
+2. Go back to `chrome://extensions/`.
+3. Locate **Udemy Transcript Scrapper** and click the circular **Reload** icon (🔄).
 
 ---
 
