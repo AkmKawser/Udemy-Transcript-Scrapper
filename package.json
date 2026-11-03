@@ -1,8 +1,8 @@
 {
-  "name": "udemy-transcript-downloader",
+  "name": "udemy-transcript-scrapper",
   "description": "Download course transcripts as Markdown / Zip.",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "scripts": {
     "dev": "wxt",
@@ -23,3 +23,4 @@
     "fflate": "^0.8.2"
   }
 }
+

@@ -7,7 +7,18 @@ export interface UdemyCurriculumItem {
     id: number;
     title: string;
     asset_type: string;
+    body?: string;
+    data?: {
+      body?: string;
+    };
+    captions?: Array<{
+      id?: number;
+      locale_id?: string;
+      language?: string;
+      url?: string;
+    }>;
   };
+  description?: string;
   type: 'chapter' | 'lecture' | 'quiz' | 'other';
   // Internal state
   isCompleted?: boolean;

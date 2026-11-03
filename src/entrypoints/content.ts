@@ -1,13 +1,16 @@
 import { defineContentScript } from '#imports';
 import { downloadState } from '@/utils/storage';
 import { MessagePayload } from '@/utils/types';
-import { getCourseId, fetchCurriculum, fetchTranscript } from '@/utils/udemy-api';
+import { getCourseId, fetchCurriculum, fetchLectureContent } from '@/utils/udemy-api';
 import { generateZip } from '@/utils/file-generator';
 
 export default defineContentScript({
-  matches: ['*://www.udemy.com/course/*/learn/lecture/*'],
+  matches: [
+    '*://www.udemy.com/course/*/learn/lecture/*',
+    '*://www.udemy.com/course/*/learn/*'
+  ],
   async main() {
-    console.log('Udemy Downloader: Content Script Loaded');
+    console.log('Udemy Transcript Scrapper: Content Script Loaded');
 
     // --- Orchestration Logic ---
 
@@ -30,7 +33,8 @@ export default defineContentScript({
           });
 
           const curriculum = await fetchCurriculum(courseId);
-          const totalLectures = curriculum.filter(i => i.type === 'lecture' && i.asset?.asset_type === 'Video').length;
+          // Include all lectures: both video and non-video text content (articles)
+          const totalLectures = curriculum.filter(i => i.type === 'lecture').length;
 
           state = {
             status: 'running',
@@ -71,7 +75,7 @@ export default defineContentScript({
           const item = curriculum[i];
 
           // Skip if not a lecture or if already done
-          if (item.type !== 'lecture' || !item.asset || item.isCompleted) {
+          if (item.type !== 'lecture' || item.isCompleted) {
             continue;
           }
 
@@ -82,14 +86,14 @@ export default defineContentScript({
           });
 
           try {
-            const transcript = await fetchTranscript(state.courseId, item.id);
+            const content = await fetchLectureContent(state.courseId, item.id, item);
             
             // Update item in local array
             curriculum[i].isCompleted = true;
-            if (transcript) {
-              curriculum[i].markdownContent = transcript;
+            if (content) {
+              curriculum[i].markdownContent = content;
             } else {
-              curriculum[i].markdownContent = '> [No Transcript Available]';
+              curriculum[i].markdownContent = '> [No Content or Transcript Available]';
             }
 
             // 3. Save State (Recoverability)
@@ -152,3 +156,4 @@ export default defineContentScript({
     });
   },
 });
+
