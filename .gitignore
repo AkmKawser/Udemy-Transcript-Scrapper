@@ -1,7 +1,23 @@
-.env
-configuration/.env
-.browser_session/
-Browser_Session/
-__pycache__/
-*.pyc
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
 
+# Build and cache outputs
+dist/
+.output/
+.wxt/
+
+# Release archives
+*.zip
+*.crx
+*.xpi
+
+# Local environment & OS files
+.env
+.env.*
+.DS_Store
+Thumbs.db
+
+# Chat logs
+Udemy Transcript Scrapper-Chat/
