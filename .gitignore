@@ -3,10 +3,6 @@ node_modules/
 .pnp
 .pnp.js
 
-# Build and cache outputs
-dist/
-.output/
-.wxt/
 
 # Release archives
 *.zip
