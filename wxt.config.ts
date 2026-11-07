@@ -8,7 +8,7 @@ export default defineConfig({
   manifest: {
     name: 'Udemy Transcript Scrapper',
     description: 'Download and scrape course transcripts and non-video article contents as Markdown / Zip.',
-    version: '1.0.0',
+    version: '1.0.1',
     permissions: ['storage', 'activeTab'],
     host_permissions: ['https://*.udemy.com/*'],
     action: {
