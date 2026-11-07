@@ -21,6 +21,6 @@ declare module '#imports' {
   export { randomDelay, sanitizeFileName, vttToMarkdown, stringToBuffer } from '../src/utils/helpers';
   export { htmlToMarkdown } from '../src/utils/html-to-markdown';
   export { downloadState } from '../src/utils/storage';
-  export { UdemyCurriculumItem, ProcessingState, MessagePayload } from '../src/utils/types';
+  export { UdemyCurriculumItem, ProcessingState, MessageAction, MessagePayload } from '../src/utils/types';
   export { getCourseId, fetchCurriculum, fetchLectureContent, fetchTranscript } from '../src/utils/udemy-api';
 }

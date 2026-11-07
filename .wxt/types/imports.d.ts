@@ -60,6 +60,6 @@ declare global {
   export type { ScriptPublicPath, InjectScriptOptions } from 'wxt/utils/inject-script'
   import('wxt/utils/inject-script')
   // @ts-ignore
-  export type { UdemyCurriculumItem, ProcessingState, MessagePayload } from 'C:/Users/USER/Documents/.MYGITHUB/Udemy-Transcript-Scrapper/src/utils/types'
+  export type { UdemyCurriculumItem, ProcessingState, MessageAction, MessagePayload } from 'C:/Users/USER/Documents/.MYGITHUB/Udemy-Transcript-Scrapper/src/utils/types'
   import('C:/Users/USER/Documents/.MYGITHUB/Udemy-Transcript-Scrapper/src/utils/types')
 }

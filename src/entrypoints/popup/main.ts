@@ -21,13 +21,68 @@ const els = {
   pause: getElement<HTMLButtonElement>('btn-pause')
 };
 
-// 1. Initial Render
-const initialState = await downloadState.getValue();
-render(initialState);
+let activeTabCourseTitle = '';
+let isDifferentCourse = false;
+
+async function syncWithActiveTab() {
+  try {
+    const [tab] = await browser.tabs.query({ active: true, currentWindow: true });
+    if (tab?.url?.includes('udemy.com/course/')) {
+      if (tab.title) {
+        activeTabCourseTitle = tab.title.split('|')[0].trim();
+      }
+
+      // Query content script to check if the current active tab is a new course
+      if (tab.id) {
+        try {
+          const courseInfo = await browser.tabs.sendMessage(tab.id, { action: 'GET_COURSE_INFO' });
+          if (courseInfo?.courseId) {
+            const savedState = await downloadState.getValue();
+            // If the active tab is on a different course than the stored state
+            if (savedState.courseId && savedState.courseId !== courseInfo.courseId) {
+              isDifferentCourse = true;
+              if (savedState.status !== 'running') {
+                renderNewCourse(courseInfo.courseTitle || activeTabCourseTitle);
+                return;
+              }
+            } else if (savedState.courseId === courseInfo.courseId) {
+              isDifferentCourse = false;
+            }
+          }
+        } catch {
+          // Content script may not have responded; fallback to storage
+        }
+      }
+    }
+  } catch (err) {
+    console.error('Error syncing with active tab:', err);
+  }
+
+  const state = await downloadState.getValue();
+  render(state);
+}
+
+function renderNewCourse(title: string) {
+  els.title.textContent = title || 'Current Course';
+  els.badge.textContent = 'READY';
+  els.fill.style.width = '0%';
+  els.count.textContent = '0 / 0';
+  els.task.textContent = 'Ready to download this course.';
+
+  els.start.textContent = 'Start Download';
+  els.start.classList.remove('hidden');
+  els.resume.classList.add('hidden');
+  els.pause.classList.add('hidden');
+}
+
+// 1. Initial Sync & Render
+await syncWithActiveTab();
 
 // 2. Watch for changes (Reactive)
 downloadState.watch((newState) => {
-  render(newState);
+  if (!isDifferentCourse || newState.status === 'running') {
+    render(newState);
+  }
 });
 
 // Render Function
@@ -75,6 +130,7 @@ async function send(action: 'START' | 'RESUME' | 'PAUSE') {
   if (tab?.id) {
     try {
       await browser.tabs.sendMessage(tab.id, { action });
+      isDifferentCourse = false;
     } catch (e) {
       els.task.textContent = 'Error: Refresh the Udemy page first.';
     }

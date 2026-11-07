@@ -18,9 +18,13 @@ export default defineContentScript({
       try {
         let state = await downloadState.getValue();
         
+        const currentCourseId = getCourseId();
+
         // --- Initialization Phase ---
-        if (!resume || state.status === 'completed' || state.status === 'error') {
-          const courseId = getCourseId();
+        // If not resuming, or if the current page's courseId is different from the stored courseId,
+        // or if stored status is completed/error, start a clean download session.
+        if (!resume || state.courseId !== currentCourseId || state.status === 'completed' || state.status === 'error') {
+          const courseId = currentCourseId;
           const courseTitle = document.title.split('|')[0].trim();
 
           await downloadState.setValue({
@@ -145,7 +149,15 @@ export default defineContentScript({
 
     // --- Message Listeners ---
     browser.runtime.onMessage.addListener(async (message: MessagePayload) => {
-      if (message.action === 'START') {
+      if (message.action === 'GET_COURSE_INFO') {
+        try {
+          const courseId = getCourseId();
+          const courseTitle = document.title.split('|')[0].trim();
+          return { courseId, courseTitle };
+        } catch (err: any) {
+          return { error: err.message };
+        }
+      } else if (message.action === 'START') {
         processDownload(false);
       } else if (message.action === 'RESUME') {
         processDownload(true);

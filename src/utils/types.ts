@@ -37,6 +37,8 @@ export interface ProcessingState {
   lastUpdated: number;
 }
 
+export type MessageAction = 'START' | 'PAUSE' | 'RESUME' | 'GET_COURSE_INFO';
+
 export interface MessagePayload {
-  action: 'START' | 'PAUSE' | 'RESUME';
+  action: MessageAction;
 }
