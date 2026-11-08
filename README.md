@@ -7,8 +7,10 @@ A lightweight Manifest V3 browser extension built with [WXT](https://wxt.dev/) a
 ## 📌 Features
 
 - **Direct API & DOM Extraction**: Captures accurate transcripts and lecture text directly within your authenticated browser session without external bots or credentials.
+- **Lecture Resource Downloading**: Automatically downloads attached lecture resources (PDFs, ZIPs, source code files, slides, and external links) and organizes them inside each chapter folder.
+- **Fast Concurrent Scraping**: Uses parallel worker pools and bulk preloaded metadata for rapid course extraction.
 - **Markdown Formatting**: Converts HTML articles, transcripts, and code blocks into clean, structured Markdown.
-- **Bulk & Single Export**: Download transcripts lecture-by-lecture or export an entire section/course as a single `.zip` file.
+- **Bulk & Single Export**: Download transcripts and resources organized chapter-by-chapter alongside a merged `_Full.md` file in a single `.zip` archive.
 - **Zero Configuration**: No `.env` or API tokens required—runs directly in your browser.
 - **Cross-Browser Support**: Built for Chromium browsers (Chrome, Edge, Brave) and Firefox.
 
@@ -19,10 +21,11 @@ A lightweight Manifest V3 browser extension built with [WXT](https://wxt.dev/) a
 ```text
 ├── dist/                                 # Compiled extension builds & release zip files
 │   ├── chrome-mv3/                       # Unpacked Chrome MV3 extension (load in chrome://extensions)
-│   └── udemy-transcript-scrapper-1.0.0-chrome.zip # Packaged release zip
+│   └── udemy-transcript-scrapper-1.1.0-chrome.zip # Packaged release zip
 ├── src/                                  # Extension source code
 │   ├── assets/                           # Extension icons and graphics
-│   ├── entrypoints/                      # Popup UI and content script
+│   ├── entrypoints/                      # Popup UI, background worker, and content script
+│   │   ├── background.ts                 # Background service worker for CORS-free resource fetching
 │   │   ├── content.ts                    # Content script for page DOM / API interactions
 │   │   └── popup/                        # Extension popup interface (HTML, TS, CSS)
 │   └── utils/                            # Core utilities
@@ -93,10 +96,10 @@ npm run build:firefox
 Package the extension into ready-to-publish `.zip` files for Web Store distribution or GitHub Releases:
 
 ```bash
-# Chrome zip (dist/udemy-transcript-scrapper-1.0.0-chrome.zip)
+# Chrome zip (dist/udemy-transcript-scrapper-1.1.0-chrome.zip)
 npm run zip
 
-# Firefox zip (dist/udemy-transcript-scrapper-1.0.0-firefox.zip)
+# Firefox zip (dist/udemy-transcript-scrapper-1.1.0-firefox.zip)
 npm run zip:firefox
 ```
 
@@ -112,7 +115,7 @@ You can install this extension directly into any Chromium-based browser (**Googl
 
 1. **Download the Release ZIP**:
    - Go to the [Releases](https://github.com/AkmKawser/Udemy-Transcript-Scrapper/releases) page.
-   - Download the latest `udemy-transcript-scrapper-1.0.0-chrome.zip`.
+   - Download the latest `udemy-transcript-scrapper-1.1.0-chrome.zip`.
 2. **Extract the ZIP file**:
    - Right-click the downloaded `.zip` file and select **Extract All...** (or unpack it using 7-Zip / WinRAR).
    - Extract it to a permanent folder on your computer (e.g. `Documents/Extensions/udemy-transcript-scrapper`).

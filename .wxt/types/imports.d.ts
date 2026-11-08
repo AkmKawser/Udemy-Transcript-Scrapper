@@ -4,7 +4,9 @@ declare global {
   const ContentScriptContext: typeof import('wxt/utils/content-script-context').ContentScriptContext
   const InvalidMatchPattern: typeof import('wxt/utils/match-patterns').InvalidMatchPattern
   const MatchPattern: typeof import('wxt/utils/match-patterns').MatchPattern
+  const base64ToUint8Array: typeof import('C:/Users/USER/Documents/.MYGITHUB/Udemy-Transcript-Scrapper/src/utils/helpers').base64ToUint8Array
   const browser: typeof import('wxt/browser').browser
+  const buildSafeResourceFilename: typeof import('C:/Users/USER/Documents/.MYGITHUB/Udemy-Transcript-Scrapper/src/utils/helpers').buildSafeResourceFilename
   const createIframeUi: typeof import('wxt/utils/content-script-ui/iframe').createIframeUi
   const createIntegratedUi: typeof import('wxt/utils/content-script-ui/integrated').createIntegratedUi
   const createShadowRootUi: typeof import('wxt/utils/content-script-ui/shadow-root').createShadowRootUi
@@ -17,6 +19,7 @@ declare global {
   const fakeBrowser: typeof import('wxt/testing').fakeBrowser
   const fetchCurriculum: typeof import('C:/Users/USER/Documents/.MYGITHUB/Udemy-Transcript-Scrapper/src/utils/udemy-api').fetchCurriculum
   const fetchLectureContent: typeof import('C:/Users/USER/Documents/.MYGITHUB/Udemy-Transcript-Scrapper/src/utils/udemy-api').fetchLectureContent
+  const fetchLectureResources: typeof import('C:/Users/USER/Documents/.MYGITHUB/Udemy-Transcript-Scrapper/src/utils/udemy-api').fetchLectureResources
   const fetchTranscript: typeof import('C:/Users/USER/Documents/.MYGITHUB/Udemy-Transcript-Scrapper/src/utils/udemy-api').fetchTranscript
   const generateZip: typeof import('C:/Users/USER/Documents/.MYGITHUB/Udemy-Transcript-Scrapper/src/utils/file-generator').generateZip
   const getAppConfig: typeof import('wxt/utils/app-config').getAppConfig
@@ -60,6 +63,6 @@ declare global {
   export type { ScriptPublicPath, InjectScriptOptions } from 'wxt/utils/inject-script'
   import('wxt/utils/inject-script')
   // @ts-ignore
-  export type { UdemyCurriculumItem, ProcessingState, MessageAction, MessagePayload } from 'C:/Users/USER/Documents/.MYGITHUB/Udemy-Transcript-Scrapper/src/utils/types'
+  export type { UdemyAssetDownloadUrl, UdemySupplementaryAsset, DownloadedResource, UdemyCurriculumItem, ProcessingState, MessageAction, MessagePayload } from 'C:/Users/USER/Documents/.MYGITHUB/Udemy-Transcript-Scrapper/src/utils/types'
   import('C:/Users/USER/Documents/.MYGITHUB/Udemy-Transcript-Scrapper/src/utils/types')
 }

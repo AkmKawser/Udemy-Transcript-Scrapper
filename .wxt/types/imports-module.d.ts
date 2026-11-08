@@ -18,9 +18,9 @@ declare module '#imports' {
   export { InvalidMatchPattern, MatchPattern } from 'wxt/utils/match-patterns';
   export { fakeBrowser } from 'wxt/testing';
   export { generateZip } from '../src/utils/file-generator';
-  export { randomDelay, sanitizeFileName, vttToMarkdown, stringToBuffer } from '../src/utils/helpers';
+  export { randomDelay, sanitizeFileName, buildSafeResourceFilename, base64ToUint8Array, vttToMarkdown, stringToBuffer } from '../src/utils/helpers';
   export { htmlToMarkdown } from '../src/utils/html-to-markdown';
   export { downloadState } from '../src/utils/storage';
-  export { UdemyCurriculumItem, ProcessingState, MessageAction, MessagePayload } from '../src/utils/types';
-  export { getCourseId, fetchCurriculum, fetchLectureContent, fetchTranscript } from '../src/utils/udemy-api';
+  export { UdemyAssetDownloadUrl, UdemySupplementaryAsset, DownloadedResource, UdemyCurriculumItem, ProcessingState, MessageAction, MessagePayload } from '../src/utils/types';
+  export { getCourseId, fetchCurriculum, fetchLectureContent, fetchLectureResources, fetchTranscript } from '../src/utils/udemy-api';
 }
